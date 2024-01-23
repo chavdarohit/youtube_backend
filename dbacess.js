@@ -44,4 +44,5 @@ module.exports = {
   connectToDatabase,
   signupInsert,
   getDataWithEmail,
+  collection
 };

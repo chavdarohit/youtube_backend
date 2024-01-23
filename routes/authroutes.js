@@ -1,8 +1,7 @@
-// const Koarouter = require("koa-router");
-// const signupInsert = require("../controllers/auth.controller");
+const router = require("koa-router")();
+const { loginUser, signupInsert } = require("../controllers/auth.controller");
 
-// const router = new Koarouter();
-// // router.post("/api/signup", signupInsert);
-// router.post("/signup", signupInsert);
+router.post("/api/signup", signupInsert);
+router.post("/api/login", loginUser);
 
-// module.exports = router.routes();
+module.exports = router.routes();
