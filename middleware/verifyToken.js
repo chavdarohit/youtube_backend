@@ -12,8 +12,8 @@ async function verifyToken(ctx, next) {
   // }
   // try {
   //   const decode = jwt.verify(token, process.env.SECRET_KEY);
-  //   ctx.state.user = decode;
-  //   console.log("Token verified successfully id is = ",decode.objId);
+  //   ctx.user = decode;
+  //   console.log("Token verified successfully id is = ", ctx.user);
   //   await next();
   // } catch (err) {
   //   ctx.status = 401;

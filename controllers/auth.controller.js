@@ -159,20 +159,21 @@ const loginUser = async (ctx) => {
     ctx.status = 401;
     ctx.body = "Invalid credentials";
     return;
+  }
+  const passwordMatch = await bcrypt.compare(password, userExists.password);
+  if (!passwordMatch) {
+    ctx.status = 401;
+    ctx.body = "Invalid credentials";
+    console.log("Invalid credentials");
   } else {
-    const passwordMatch = await bcrypt.compare(password, userExists.password);
-    if (passwordMatch) {
-      const token = makeJwtToken(userExists._id.toHexString());
-      ctx.body = {
-        status: 200,
-        message: "Login succesfull",
-        token,
-        user: userExists,
-      };
-    } else {
-      ctx.status = 401;
-      ctx.body = "Invalid credentials";
-    }
+    const token = makeJwtToken(userExists._id.toHexString());
+    ctx.body = {
+      status: 200,
+      message: "Login succesfull",
+      token,
+      user: userExists,
+    };
+    console.log("Login succesfull");
   }
 };
 
