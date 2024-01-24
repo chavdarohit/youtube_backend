@@ -79,8 +79,7 @@ const signupInsert = async (ctx) => {
     return true;
 
     async function validateEmailExists(email) {
-      const users = await db.getDataWithEmail(email);
-      // console.log("User", users);
+      const users = await collection.findOne({ email: email });
       if (users) return false;
       else return true;
     }
@@ -128,7 +127,7 @@ const signupInsert = async (ctx) => {
       )
     ) {
       let encryptedpssd = await bcrypt.hash(pssd, 10);
-      console.log("Age is ", age);
+      // console.log("Age is ", age);
       const objdata = {
         firstname: fname,
         lastname: lname,
@@ -138,11 +137,18 @@ const signupInsert = async (ctx) => {
         gender,
         birthdate,
         age: age,
+        image: ctx.file ? ctx.file.path : null,
       };
       const ack = await db.signupInsert(objdata);
       const userId = ack.insertedId.toHexString();
       const token = makeJwtToken(userId);
-      ctx.body = { status: 200, message: "Registration succesfull", token };
+      objdata["_id"] = userId;
+      ctx.body = {
+        status: 200,
+        message: "Registration succesfull",
+        token,
+        user: objdata,
+      };
     }
   } catch (err) {
     ctx.status = 400;
