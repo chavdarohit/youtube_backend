@@ -31,6 +31,8 @@ const signupInsert = async (ctx) => {
       birthdate,
       age: age,
       image: imagePath,
+      isPremium: false,
+      channelsSubscribed: [],
     };
     const ack = await db.signupInsert(objdata);
     const userId = ack.insertedId.toHexString();
