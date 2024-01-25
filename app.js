@@ -19,6 +19,13 @@ app.use(serve("./public"));
 app.use(publicRouter.routes());
 app.use(privateRouter.routes());
 
+app.on("error", (err, ctx) => {
+  console.error("Unhandled error occurred:", err);
+  // You can customize the error response here
+  ctx.status = 500;
+  ctx.body = "Internal Server Error";
+});
+
 app.listen(80, () => {
   console.log(`Server is running on port 80...🚀`);
 });
