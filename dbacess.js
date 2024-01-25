@@ -7,7 +7,7 @@ const collection = database.collection("users");
 async function connectToDatabase() {
   try {
     await client.connect();
-    console.log("Connected to MongoDB atlas");
+    console.log("Connected to MongoDB local");
   } catch (err) {
     console.error("Error connecting to MongoDB:", err);
   }

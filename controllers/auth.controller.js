@@ -12,7 +12,7 @@ const signupInsert = async (ctx) => {
     password: pssd,
     cpassword: confpssd,
     email: email,
-    mono: mno,
+    mobile,
     gender: gender,
     bday: birthdate,
   } = ctx.request.body;
@@ -23,7 +23,7 @@ const signupInsert = async (ctx) => {
     pssd,
     confpssd,
     email,
-    mno,
+    mobile,
     birthdate,
     gender
   ) {
@@ -34,7 +34,7 @@ const signupInsert = async (ctx) => {
         pssd &&
         confpssd &&
         email &&
-        mno &&
+        mobile &&
         birthdate &&
         gender
       )
@@ -62,7 +62,7 @@ const signupInsert = async (ctx) => {
     ) {
       throw new Error("Gender Must be 'Male' or 'Female");
     }
-    if (!validateMobile(mno)) {
+    if (!validateMobile(mobile)) {
       console.log("Invalid mobile number");
       throw new Error("Invalid mobile number");
     }
@@ -83,8 +83,8 @@ const signupInsert = async (ctx) => {
       if (users) return false;
       else return true;
     }
-    function validateMobile(mno) {
-      if (mno.toString().length === 10 && !isNaN(parseInt(mno))) return true;
+    function validateMobile(mobile) {
+      if (mobile.toString().length === 10 && !isNaN(parseInt(mobile))) return true;
       else return false;
     }
     function validateAge(birthdate) {
@@ -121,28 +121,31 @@ const signupInsert = async (ctx) => {
         pssd,
         confpssd,
         email,
-        mno,
+        mobile,
         birthdate,
         gender
       )
     ) {
       let encryptedpssd = await bcrypt.hash(pssd, 10);
-      // console.log("Age is ", age);
+      let imagePath = ctx.file ? ctx.file.path : null;
+      imagePath = imagePath.split('\\')[1];
+
       const objdata = {
         firstname: fname,
         lastname: lname,
         password: encryptedpssd,
         email,
-        mobile: mno,
+        mobile: mobile,
         gender,
         birthdate,
         age: age,
-        image: ctx.file ? ctx.file.path : null,
+        image: imagePath
       };
       const ack = await db.signupInsert(objdata);
       const userId = ack.insertedId.toHexString();
       const token = makeJwtToken(userId);
       objdata["_id"] = userId;
+      ctx.status = 200;
       ctx.body = {
         status: 200,
         message: "Registration succesfull",
@@ -151,6 +154,7 @@ const signupInsert = async (ctx) => {
       };
     }
   } catch (err) {
+    console.log("here in catch : ", err);
     ctx.status = 400;
     ctx.body = err.message || "An error occurred during registration";
   }

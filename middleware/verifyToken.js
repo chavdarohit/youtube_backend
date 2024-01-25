@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 async function verifyToken(ctx, next) {
-
   const token = ctx.cookies.get("token");
   if (!token) {
     ctx.status = 401;
@@ -13,6 +12,7 @@ async function verifyToken(ctx, next) {
   try {
     const decode = jwt.verify(token, process.env.SECRET_KEY);
     ctx.user = decode;
+    console.log("Token verified succesfully");
     await next();
   } catch (err) {
     ctx.status = 401;
