@@ -2,7 +2,7 @@ const { MongoClient } = require("mongodb");
 require("dotenv").config();
 const client = new MongoClient(process.env.MONGO_URI);
 const database = client.db("youtube-project");
-const collection = database.collection("users");
+const userCollection = database.collection("users");
 const suggestedCollection = database.collection("suggested");
 
 async function connectToDatabase() {
@@ -16,7 +16,7 @@ async function connectToDatabase() {
 
 async function signupInsert(obj) {
   try {
-    const ack = await collection.insertOne(obj);
+    const ack = await userCollection.insertOne(obj);
     console.log("Data inserted ", ack);
     return ack;
   } catch (err) {
@@ -27,6 +27,6 @@ async function signupInsert(obj) {
 module.exports = {
   connectToDatabase,
   signupInsert,
-  collection,
+  userCollection,
   suggestedCollection,
 };

@@ -1,4 +1,4 @@
-const { collection } = require("../dbacess");
+const { userCollection } = require("../dbacess");
 
 let age;
 async function validateUser(ctx, next) {
@@ -77,7 +77,7 @@ async function validateUser(ctx, next) {
 module.exports = validateUser;
 
 async function validateEmailExists(email) {
-  const users = await collection.findOne({ email: email });
+  const users = await userCollection.findOne({ email: email });
   if (users) return false;
   else return true;
 }
@@ -175,7 +175,7 @@ function validateEmail(email) {
 //   return true;
 
 //   async function validateEmailExists(email) {
-//     const users = await collection.findOne({ email: email });
+//     const users = await userCollection.findOne({ email: email });
 //     if (users) return false;
 //     else return true;
 //   }

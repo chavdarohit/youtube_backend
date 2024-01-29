@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const db = require("../dbacess");
 const makeJwtToken = require("../utils/MakeAuthToken");
-const { collection } = require("../dbacess");
+const { userCollection } = require("../dbacess");
 
 const signupInsert = async (ctx) => {
   let {
@@ -55,7 +55,7 @@ const signupInsert = async (ctx) => {
 
 const loginUser = async (ctx) => {
   let { email, password } = ctx.request.body;
-  const userExists = await collection.findOne({ email });
+  const userExists = await userCollection.findOne({ email });
 
   if (!userExists) {
     ctx.status = 401;
