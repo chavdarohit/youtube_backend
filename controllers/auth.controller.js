@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const db = require("../dbacess");
 const makeJwtToken = require("../utils/MakeAuthToken");
 const { userCollection } = require("../dbacess");
-
+const { v4: uuidv4 } = require("uuid");
 const signupInsert = async (ctx) => {
   let {
     firstname: fname,
@@ -25,7 +25,7 @@ const signupInsert = async (ctx) => {
       firstname: fname,
       lastname: lname,
       password: encryptedpssd,
-      email,
+      email: email.toLowerCase(),
       mobile: mobile,
       gender,
       birthdate,
@@ -33,6 +33,7 @@ const signupInsert = async (ctx) => {
       image: imagePath,
       isPremium: false,
       channelsSubscribed: [],
+      userId: uuidv4(),
     };
     const ack = await db.signupInsert(objdata);
     const userId = ack.insertedId.toHexString();
@@ -55,6 +56,7 @@ const signupInsert = async (ctx) => {
 
 const loginUser = async (ctx) => {
   let { email, password } = ctx.request.body;
+  email = email.toLowerCase();
   const userExists = await userCollection.findOne({ email });
 
   if (!userExists) {

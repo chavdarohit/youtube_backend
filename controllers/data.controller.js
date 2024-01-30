@@ -137,10 +137,9 @@ async function subscribeChannel(ctx) {
 async function viewSubscribedChannel(ctx) {
   const userId = ctx.user.objId;
   try {
-    const userschannel = await userCollection.findOne(
-      { _id: new ObjectId(userId) },
-      { projection: { channelsSubscribed: 1, _id: 0 } }
-    );
+    const userschannel = await userCollection.findOne({
+      _id: new ObjectId(userId),
+    });
 
     //taken the ids of the subscribed array into another array
     const ids = userschannel.channelsSubscribed.map((item) => item.id);
@@ -163,9 +162,133 @@ async function viewSubscribedChannel(ctx) {
   }
 }
 
+const pressBellIcon = async (ctx) => {
+  const userId = ctx.user.objId;
+  const channelId = ctx.params.id;
+  console.log("hii press bell");
+  try {
+    // const ack = await userCollection.updateOne(
+    //   {
+    //     _id: new ObjectId(userId),
+    //     "channelsSubscribed.id": new ObjectId(channelId),
+    //   },
+    //   {
+    //     $set: {
+    //       "channelsSubscribed.$.isbell": false,
+    //     },
+    //   }
+    // );
+    // const ack = await userCollection
+    //   .aggregate([
+    //     {
+    //       $match: {
+    //         "channelsSubscribed.id": new ObjectId(channelId),
+    //       },
+    //     },
+    //     {
+    //       $set: {
+    //         channelsSubscribed: {
+    //           $map: {
+    //             input: "$channelsSubscribed",
+    //             as: "channel",
+    //             in: {
+    //               $mergeObjects: [
+    //                 "$$channel",
+    //                 {
+    //                   isBell: {
+    //                     $cond: {
+    //                       if: {
+    //                         $eq: ["$$channel.id", new ObjectId(channelId)],
+    //                       },
+    //                       then: { $not: "$$channel.isBell" },
+    //                       else: "$$channel.isBell",
+    //                     },
+    //                   },
+    //                 },
+    //               ],
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //   ])
+    //   .toArray();
+
+    db.users.aggregate([
+      {
+        $match: {
+          _id: ObjectId('65b8a04702d31400be7a7439'),
+        },
+      },
+      {
+        $project: {
+          channelsSubscribed: {
+            $map: {
+              input: "$channelsSubscribed",
+              as: "channel",
+              in: {
+                $cond: [
+                  {
+                    $eq: ["$$channel.id", ObjectId('65b21f6dbd942237aec0496a')],
+                  },
+                  {
+                    $mergeObjects: [
+                      "$$channel",
+                      {
+                        isbell: {
+                          $not: "$$channel.isbell",
+                        },
+                      },
+                    ],
+                  },
+                  "$$channel",
+                ],
+              },
+            },
+          },
+        },
+      },
+    ]);
+  
+
+    if (ack.modifiedCount === 0) {
+      ctx.body = { status: 204, message: "Problem in Bell icon" };
+      console.log("Problem in Bell icon");
+      return;
+    } else {
+      ctx.body = { status: 200, message: "Updated Bell Icon" };
+      console.log("Updated Bell Icon");
+    }
+  } catch (err) {
+    console.log("Error while updating the bell icon", err);
+  }
+};
+
+const makeUserPremium = async (ctx) => {
+  const userId = ctx.params.id;
+  const ack = await userCollection.updateOne(
+    {
+      _id: new ObjectId(userId),
+    },
+    {
+      $set: { isPremium: { $ne: ["$isPremium", true] } },
+    }
+  );
+  console.log("ack ", ack);
+  if (ack.modifiedCount === 0) {
+    ctx.body = { status: 201, message: "Error making premium" };
+    console.log("Error making premium", err);
+  } else {
+    ctx.body = { status: 200, message: "User made Premium" };
+    console.log("User made Premium", result);
+  }
+};
+
 module.exports = {
   viewProfile,
   suggestedChannels,
   subscribeChannel,
   viewSubscribedChannel,
+  pressBellIcon,
+  makeUserPremium,
 };

@@ -4,13 +4,16 @@ const {
   suggestedChannels,
   subscribeChannel,
   viewSubscribedChannel,
+  pressBellIcon,
+  makeUserPremium,
 } = require("../controllers/data.controller");
 const verifyToken = require("../middleware/verifyToken");
-const validateUser = require("../validators/signupvalidation");
 
 router.get("/profile", verifyToken, viewProfile);
 router.get("/suggested", verifyToken, suggestedChannels);
 router.get("/subscribe/:id", verifyToken, subscribeChannel);
 router.get("/viewsubscribed", verifyToken, viewSubscribedChannel);
+router.get("/bell/:id", verifyToken, pressBellIcon);
+router.get("/premium/:id", verifyToken, makeUserPremium);
 
 module.exports = router.routes();
