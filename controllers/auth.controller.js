@@ -35,17 +35,18 @@ const signupInsert = async (ctx) => {
       channelsSubscribed: [],
       userId: uuidv4(),
     };
-    const ack = await db.signupInsert(objdata);
-    const userId = ack.insertedId.toHexString();
-    const token = makeJwtToken(userId);
-    objdata["_id"] = userId;
     console.log("Storging data = ", objdata);
+    const ack = await db.signupInsert(objdata);
+    const user = await userCollection.findOne({ userId: objdata.userId });
+    const userId = user.userId;
+    console.log("User retrieved ", user, userId);
+    const token = makeJwtToken(userId);
     ctx.status = 200;
     ctx.body = {
       status: 200,
       message: "Registration succesfull",
       token,
-      user: objdata,
+      user,
     };
   } catch (err) {
     console.log("here in catch : ", err);
@@ -70,7 +71,7 @@ const loginUser = async (ctx) => {
     ctx.body = "Invalid credentials";
     console.log("Invalid credentials");
   } else {
-    const token = makeJwtToken(userExists._id.toHexString());
+    const token = makeJwtToken(userExists.userId);
     ctx.body = {
       status: 200,
       message: "Login succesfull",

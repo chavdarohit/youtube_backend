@@ -77,6 +77,7 @@ async function validateUser(ctx, next) {
 module.exports = validateUser;
 
 async function validateEmailExists(email) {
+  email = email.toLowerCase();
   const users = await userCollection.findOne({ email: email });
   if (users) return false;
   else return true;

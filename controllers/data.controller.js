@@ -2,9 +2,9 @@ const { userCollection, suggestedCollection } = require("../dbacess");
 const { ObjectId } = require("mongodb");
 
 async function viewProfile(ctx) {
-  const userId = ctx.user.objId;
+  const userId = ctx.user.userId;
   console.log("User id in view profile ", userId);
-  const user = await userCollection.findOne({ _id: new ObjectId(userId) });
+  const user = await userCollection.findOne({ userId: userId });
   if (!user) {
     ctx.status = 404;
     ctx.body = "User Not found";
@@ -20,7 +20,7 @@ async function viewProfile(ctx) {
 }
 
 async function suggestedChannels(ctx) {
-  const userid = ctx.user.objId;
+  const userId = ctx.user.userId;
   const { _limit, _page, _searchTerm } = ctx.query;
 
   const limit = parseInt(_limit) || 10;
@@ -29,12 +29,14 @@ async function suggestedChannels(ctx) {
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
-  const user = await userCollection.findOne({ _id: new ObjectId(userid) });
+  const user = await userCollection.findOne({ userId: userId });
   const channels = await suggestedCollection.find({}).toArray();
+
+  const ispremium = user.isPremium;
 
   //this is the subscribed channel already subscribe by user
   const userschannel = await userCollection.findOne(
-    { _id: new ObjectId(userid) },
+    { userId: userId },
     { projection: { channelsSubscribed: 1, _id: 0 } }
   );
 
@@ -84,6 +86,12 @@ async function suggestedChannels(ctx) {
   }
   console.log("Showing limited channels");
 
+  if (!ispremium) {
+    filteredChannel = filteredChannel.filter(
+      (item) => item.isPremium === false
+    );
+  }
+
   let limitchannels = filteredChannel.slice(startIndex, endIndex); //channels with limit
   // console.log("limit chNNELS : ", startIndex, endIndex, limitchannels);
   console.log("suggested Channels fetched by ", user.firstname, user.lastname);
@@ -94,7 +102,7 @@ async function suggestedChannels(ctx) {
 }
 
 async function subscribeChannel(ctx) {
-  const userId = ctx.user.objId;
+  const userId = ctx.user.userId;
   const channelId = ctx.params.id;
   console.log("id ", userId, " channel id ", channelId);
   try {
@@ -104,7 +112,7 @@ async function subscribeChannel(ctx) {
     console.log("channel for subscribng ", channel.channelName);
 
     const ack = await userCollection.updateOne(
-      { _id: new ObjectId(userId) },
+      { userId: userId },
       {
         $addToSet: {
           channelsSubscribed: { id: new ObjectId(channelId), isbell: false },
@@ -135,10 +143,10 @@ async function subscribeChannel(ctx) {
 }
 
 async function viewSubscribedChannel(ctx) {
-  const userId = ctx.user.objId;
+  const userId = ctx.user.userId;
   try {
     const userschannel = await userCollection.findOne({
-      _id: new ObjectId(userId),
+      userId: userId,
     });
 
     //taken the ids of the subscribed array into another array
@@ -163,21 +171,21 @@ async function viewSubscribedChannel(ctx) {
 }
 
 const pressBellIcon = async (ctx) => {
-  const userId = ctx.user.objId;
+  const userId = ctx.user.userId;
   const channelId = ctx.params.id;
-  console.log("hii press bell");
+  console.log("176", userId, channelId);
   try {
-    // const ack = await userCollection.updateOne(
-    //   {
-    //     _id: new ObjectId(userId),
-    //     "channelsSubscribed.id": new ObjectId(channelId),
-    //   },
-    //   {
-    //     $set: {
-    //       "channelsSubscribed.$.isbell": false,
-    //     },
-    //   }
-    // );
+    const ack = await userCollection.updateOne(
+      {
+        userId: userId,
+        "channelsSubscribed.id": new ObjectId(channelId),
+      },
+      {
+        $set: {
+          "channelsSubscribed.$.isbell": false,
+        },
+      }
+    );
     // const ack = await userCollection
     //   .aggregate([
     //     {
@@ -214,42 +222,41 @@ const pressBellIcon = async (ctx) => {
     //   ])
     //   .toArray();
 
-    db.users.aggregate([
-      {
-        $match: {
-          _id: ObjectId('65b8a04702d31400be7a7439'),
-        },
-      },
-      {
-        $project: {
-          channelsSubscribed: {
-            $map: {
-              input: "$channelsSubscribed",
-              as: "channel",
-              in: {
-                $cond: [
-                  {
-                    $eq: ["$$channel.id", ObjectId('65b21f6dbd942237aec0496a')],
-                  },
-                  {
-                    $mergeObjects: [
-                      "$$channel",
-                      {
-                        isbell: {
-                          $not: "$$channel.isbell",
-                        },
-                      },
-                    ],
-                  },
-                  "$$channel",
-                ],
-              },
-            },
-          },
-        },
-      },
-    ]);
-  
+    // db.users.aggregate([
+    //   {
+    //     $match: {
+    //       _id: ObjectId("65b8a04702d31400be7a7439"),
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       channelsSubscribed: {
+    //         $map: {
+    //           input: "$channelsSubscribed",
+    //           as: "channel",
+    //           in: {
+    //             $cond: [
+    //               {
+    //                 $eq: ["$$channel.id", ObjectId("65b21f6dbd942237aec0496a")],
+    //               },
+    //               {
+    //                 $mergeObjects: [
+    //                   "$$channel",
+    //                   {
+    //                     isbell: {
+    //                       $not: "$$channel.isbell",
+    //                     },
+    //                   },
+    //                 ],
+    //               },
+    //               "$$channel",
+    //             ],
+    //           },
+    //         },
+    //       },
+    //     },
+    //   },
+    // ]);
 
     if (ack.modifiedCount === 0) {
       ctx.body = { status: 204, message: "Problem in Bell icon" };
@@ -265,22 +272,26 @@ const pressBellIcon = async (ctx) => {
 };
 
 const makeUserPremium = async (ctx) => {
-  const userId = ctx.params.id;
-  const ack = await userCollection.updateOne(
-    {
-      _id: new ObjectId(userId),
-    },
-    {
-      $set: { isPremium: { $ne: ["$isPremium", true] } },
+  try {
+    const userId = ctx.user.userId;
+    // const user = await userCollection.findOne({
+    //   userId: userId,
+    // });
+    // console.log("user in premiuim ", user, userId);
+    const ack = await userCollection.findOneAndUpdate(
+      {
+        userId: userId,
+      },
+      [{ $set: { isPremium: { $not: "$isPremium" } } }]
+    );
+    console.log("ack ", ack);
+    if (ack) {
+      console.log("User account Upgraded");
+      ctx.body = { status: 200, message: "User made Premium", user: ack };
     }
-  );
-  console.log("ack ", ack);
-  if (ack.modifiedCount === 0) {
+  } catch (err) {
     ctx.body = { status: 201, message: "Error making premium" };
     console.log("Error making premium", err);
-  } else {
-    ctx.body = { status: 200, message: "User made Premium" };
-    console.log("User made Premium", result);
   }
 };
 

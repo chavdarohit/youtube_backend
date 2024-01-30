@@ -14,6 +14,6 @@ router.get("/suggested", verifyToken, suggestedChannels);
 router.get("/subscribe/:id", verifyToken, subscribeChannel);
 router.get("/viewsubscribed", verifyToken, viewSubscribedChannel);
 router.get("/bell/:id", verifyToken, pressBellIcon);
-router.get("/premium/:id", verifyToken, makeUserPremium);
+router.get("/premium", verifyToken, makeUserPremium);
 
 module.exports = router.routes();

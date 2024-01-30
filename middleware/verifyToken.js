@@ -18,7 +18,7 @@ async function verifyToken(ctx, next) {
   } catch (err) {
     ctx.status = 401;
     ctx.body = {
-      error: "Unauthorized user - Bad Request",
+      error: "Unauthorized user - Bad Request from middleware",
     };
     // console.log("Token decode error ", "Unauthorized");
   }
