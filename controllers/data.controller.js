@@ -70,6 +70,12 @@ async function suggestedChannels(ctx) {
       return acc;
     }, []);
 
+    if (!ispremium) {
+      searchChannels = searchChannels.filter(
+        (item) => item.isPremium === false
+      );
+    }
+
     if (searchChannels.length === 0) {
       ctx.body = {
         status: 202,
@@ -111,7 +117,7 @@ async function subscribeChannel(ctx) {
     });
     console.log("channel for subscribng ", channel.channelName);
 
-    const ack = await userCollection.updateOne(
+    const addtosetack = await userCollection.updateOne(
       { userId: userId },
       {
         $addToSet: {
@@ -119,19 +125,36 @@ async function subscribeChannel(ctx) {
         },
       }
     );
-
-    if (ack.modifiedCount === 0) {
-      ctx.body = {
-        status: 201,
-        massage: "Already Subscribed ",
-      };
-      console.log("Already Subscribed", ack);
-    } else {
+    if (addtosetack.modifiedCount > 0) {
       ctx.body = {
         status: 200,
         massage: "Subscribed Succesfully",
       };
-      console.log("Subscribed Succesfully", ack);
+      console.log("Subscribed Succesfully");
+    } else {
+      const pullack = await userCollection.updateOne(
+        {
+          userId: userId,
+        },
+        {
+          $pull: {
+            channelsSubscribed: { id: new ObjectId(channelId) },
+          },
+        }
+      );
+      if (pullack.modifiedCount > 0) {
+        ctx.body = {
+          status: 200,
+          massage: "Channel Unsubscribed",
+        };
+        console.log("Channel Unsubscribed");
+      } else {
+        ctx.body = {
+          status: 204,
+          massage: "Channel Not found",
+        };
+        console.log("Channel Not found");
+      }
     }
   } catch (err) {
     console.error("Error updating data:", err);
@@ -173,91 +196,23 @@ async function viewSubscribedChannel(ctx) {
 const pressBellIcon = async (ctx) => {
   const userId = ctx.user.userId;
   const channelId = ctx.params.id;
-  console.log("176", userId, channelId);
+
   try {
     const ack = await userCollection.updateOne(
       {
         userId: userId,
         "channelsSubscribed.id": new ObjectId(channelId),
       },
-      {
-        $set: {
-          "channelsSubscribed.$.isbell": false,
+      [
+        {
+          $set: {
+            "channelsSubscribed.$.isbell": {
+              $not: "$channelsSubscribed.$.isbell",
+            },
+          },
         },
-      }
+      ]
     );
-    // const ack = await userCollection
-    //   .aggregate([
-    //     {
-    //       $match: {
-    //         "channelsSubscribed.id": new ObjectId(channelId),
-    //       },
-    //     },
-    //     {
-    //       $set: {
-    //         channelsSubscribed: {
-    //           $map: {
-    //             input: "$channelsSubscribed",
-    //             as: "channel",
-    //             in: {
-    //               $mergeObjects: [
-    //                 "$$channel",
-    //                 {
-    //                   isBell: {
-    //                     $cond: {
-    //                       if: {
-    //                         $eq: ["$$channel.id", new ObjectId(channelId)],
-    //                       },
-    //                       then: { $not: "$$channel.isBell" },
-    //                       else: "$$channel.isBell",
-    //                     },
-    //                   },
-    //                 },
-    //               ],
-    //             },
-    //           },
-    //         },
-    //       },
-    //     },
-    //   ])
-    //   .toArray();
-
-    // db.users.aggregate([
-    //   {
-    //     $match: {
-    //       _id: ObjectId("65b8a04702d31400be7a7439"),
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       channelsSubscribed: {
-    //         $map: {
-    //           input: "$channelsSubscribed",
-    //           as: "channel",
-    //           in: {
-    //             $cond: [
-    //               {
-    //                 $eq: ["$$channel.id", ObjectId("65b21f6dbd942237aec0496a")],
-    //               },
-    //               {
-    //                 $mergeObjects: [
-    //                   "$$channel",
-    //                   {
-    //                     isbell: {
-    //                       $not: "$$channel.isbell",
-    //                     },
-    //                   },
-    //                 ],
-    //               },
-    //               "$$channel",
-    //             ],
-    //           },
-    //         },
-    //       },
-    //     },
-    //   },
-    // ]);
-
     if (ack.modifiedCount === 0) {
       ctx.body = { status: 204, message: "Problem in Bell icon" };
       console.log("Problem in Bell icon");
@@ -274,15 +229,14 @@ const pressBellIcon = async (ctx) => {
 const makeUserPremium = async (ctx) => {
   try {
     const userId = ctx.user.userId;
-    // const user = await userCollection.findOne({
-    //   userId: userId,
-    // });
-    // console.log("user in premiuim ", user, userId);
     const ack = await userCollection.findOneAndUpdate(
       {
         userId: userId,
       },
-      [{ $set: { isPremium: { $not: "$isPremium" } } }]
+      [{ $set: { isPremium: { $not: "$isPremium" } } }],
+      {
+        returnDocument: "after",
+      }
     );
     console.log("ack ", ack);
     if (ack) {
