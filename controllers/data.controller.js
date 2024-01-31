@@ -20,91 +20,95 @@ async function viewProfile(ctx) {
 }
 
 async function suggestedChannels(ctx) {
-  const userId = ctx.user.userId;
-  const { _limit, _page, _searchTerm } = ctx.query;
-
-  const limit = parseInt(_limit) || 10;
-  const page = parseInt(_page) || 1;
-
-  const startIndex = (page - 1) * limit;
-  const endIndex = page * limit;
-
-  const user = await userCollection.findOne({ userId: userId });
-  const channels = await suggestedCollection.find({}).toArray();
-
-  const ispremium = user.isPremium;
-
-  //this is the subscribed channel already subscribe by user
-  const userschannel = await userCollection.findOne(
-    { userId: userId },
-    { projection: { channelsSubscribed: 1, _id: 0 } }
-  );
-
-  //filtering and removing channels which is already subscribed by the user
-  let filteredChannel;
   try {
-    if (userschannel.channelsSubscribed.length === 0) {
-      filteredChannel = channels;
-    } else {
-      filteredChannel = channels.filter(
-        (item1) =>
-          !userschannel.channelsSubscribed.some(
-            (item2) => item1._id.toHexString() === item2.id.toHexString()
-          )
-      );
-      // console.log("Filtered ", filteredChannel);
-    }
-  } catch (err) {
-    console.log("error filtering data");
-  }
+    const userId = ctx.user.userId;
+    const { _limit, _page, _searchTerm } = ctx.query;
 
-  if (_searchTerm) {
-    const regex = new RegExp(_searchTerm, "i");
-    console.log("in search");
-    // Test if the word is present in the string
-    const searchChannels = filteredChannel.reduce((acc, item) => {
-      if (regex.test(item.channelName)) {
-        return [...acc, item];
+    const limit = parseInt(_limit) || 10;
+    const page = parseInt(_page) || 1;
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const user = await userCollection.findOne({ userId: userId });
+    const channels = await suggestedCollection.find({}).toArray();
+
+    const ispremium = user.isPremium;
+
+    //this is the subscribed channel already subscribe by user
+    const userschannel = await userCollection.findOne(
+      { userId: userId },
+      { projection: { channelsSubscribed: 1, _id: 0 } }
+    );
+
+    //filtering and removing channels which is already subscribed by the user
+    let filteredChannel;
+    try {
+      if (userschannel.channelsSubscribed.length === 0) {
+        filteredChannel = channels;
+      } else {
+        filteredChannel = channels.filter(
+          (item1) =>
+            !userschannel.channelsSubscribed.some(
+              (item2) => item1._id.toHexString() === item2.id.toHexString()
+            )
+        );
+        // console.log("Filtered ", filteredChannel);
+      }
+    } catch (err) {
+      console.log("error filtering data");
+    }
+
+    if (_searchTerm) {
+      let searchChannels = await suggestedCollection
+        .find({
+          channelName: new RegExp(_searchTerm, "i"),
+        })
+        .toArray();
+
+      if (!ispremium) {
+        searchChannels = searchChannels.filter(
+          (item) => item.isPremium === false
+        );
       }
 
-      return acc;
-    }, []);
+      // console.log("search channels ", searchChannels);
+      if (searchChannels.length === 0) {
+        ctx.body = {
+          status: 202,
+          channels: searchChannels,
+        };
+        return;
+      } else {
+        ctx.body = {
+          status: 200,
+          channels: searchChannels,
+        };
+        return;
+      }
+    }
+    console.log("Showing limited channels");
 
     if (!ispremium) {
-      searchChannels = searchChannels.filter(
+      filteredChannel = filteredChannel.filter(
         (item) => item.isPremium === false
       );
     }
 
-    if (searchChannels.length === 0) {
-      ctx.body = {
-        status: 202,
-        channels: searchChannels,
-      };
-      return;
-    } else {
-      ctx.body = {
-        status: 200,
-        channels: searchChannels,
-      };
-      return;
-    }
-  }
-  console.log("Showing limited channels");
-
-  if (!ispremium) {
-    filteredChannel = filteredChannel.filter(
-      (item) => item.isPremium === false
+    let limitchannels = filteredChannel.slice(startIndex, endIndex); //channels with limit
+    // console.log("limit chNNELS : ", startIndex, endIndex, limitchannels);
+    console.log(
+      "suggested Channels fetched by ",
+      user.firstname,
+      user.lastname
     );
+    ctx.body = {
+      status: 200,
+      channels: limitchannels,
+    };
+  } catch (err) {
+    console.log("error while suggestion ", err);
   }
-
-  let limitchannels = filteredChannel.slice(startIndex, endIndex); //channels with limit
-  // console.log("limit chNNELS : ", startIndex, endIndex, limitchannels);
-  console.log("suggested Channels fetched by ", user.firstname, user.lastname);
-  ctx.body = {
-    status: 200,
-    channels: limitchannels,
-  };
 }
 
 async function subscribeChannel(ctx) {
@@ -115,7 +119,7 @@ async function subscribeChannel(ctx) {
     const channel = await suggestedCollection.findOne({
       _id: new ObjectId(channelId),
     });
-    console.log("channel for subscribng ", channel.channelName);
+    // console.log("channel for subscribng ", channel.channelName);
 
     const addtosetack = await userCollection.updateOne(
       { userId: userId },
@@ -196,29 +200,24 @@ async function viewSubscribedChannel(ctx) {
 const pressBellIcon = async (ctx) => {
   const userId = ctx.user.userId;
   const channelId = ctx.params.id;
-
   try {
-    const ack = await userCollection.updateOne(
+    const ack = await userCollection.findOne(
       {
         userId: userId,
         "channelsSubscribed.id": new ObjectId(channelId),
       },
-      [
-        {
-          $set: {
-            "channelsSubscribed.$.isbell": {
-              $not: "$channelsSubscribed.$.isbell",
-            },
-          },
-        },
-      ]
+      {
+        channelsSubscribed: { $elemMatch: { id: new ObjectId(channelId) } },
+      }
     );
+    console.log(ack);
+
     if (ack.modifiedCount === 0) {
-      ctx.body = { status: 204, message: "Problem in Bell icon" };
+      ctx.body = { status: 204, message: "No channel found for bell icon" };
       console.log("Problem in Bell icon");
       return;
     } else {
-      ctx.body = { status: 200, message: "Updated Bell Icon" };
+      ctx.body = { status: 200, message: "Updated Bell Icon", ack };
       console.log("Updated Bell Icon");
     }
   } catch (err) {
