@@ -1,47 +1,88 @@
 const nodemailer = require("nodemailer");
 const { userCollection } = require("../dbacess");
+const jwt = require("jsonwebtoken");
+const { viewSubscribedChannel } = require("./data.controller");
 require("dotenv").config();
 
-const addBuddy = (ctx) => {
-  console.log("Testing email");
+const sendEmail = async (mailOptions) => {
+  return new Promise((resolve, reject) => {
+    // Create a transporter using SMTP transport
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false, // use SSL
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PSSD,
+      },
+    });
 
-  // Create a transporter using SMTP transport
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // use SSL
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PSSD,
-    },
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(info);
+      }
+    });
   });
+};
+
+const requestBuddy = async (ctx) => {
+  const userId = ctx.user.userId;
+  const buddyId = ctx.request.body.buddyId;
+  const buddyExists = await userCollection.findOne({
+    userId: buddyId,
+  });
+
+  if (!buddyExists) {
+    ctx.body = {
+      status: 401,
+      message: "Unauthorised Buddy Request",
+    };
+    return;
+  } else {
+    console.log("Buddy exists ...");
+  }
+
+  const urlToken = jwt.sign({ userId, buddyId }, process.env.SECRET_KEY, {
+    expiresIn: process.env.JWT_EXPIRY_TIME,
+  });
+  if (urlToken) console.log("Url token generated");
 
   // Define the email content
   const mailOptions = {
     from: process.env.EMAIL,
-    to: process.env.RECEMAIL,
+    to: buddyExists.email,
     subject: "Youtube Subsribe @SocialPilot",
-    text: "This is a test email !",
     html: `
     <p>You have received an add friend request. Click the links below to accept or reject:</p>
-    <a href="">Click here !!</a>
+    <a href='http://app.custom.local/accept/invitation/${urlToken}'>Click here !!</a>
     `,
   };
-
   // Send the email
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error("Error sending email:", error);
-    } else {
-      console.log("Email sent:", info.response);
-    }
-  });
+  try {
+    const info = await sendEmail(mailOptions);
+    ctx.body = {
+      status: 200,
+      message: "Email sent Succesfully",
+      token: urlToken,
+    };
+    console.log("Email sent:", info.response);
+  } catch (err) {
+    ctx.body = {
+      status: 403,
+      message: "Can't send Email",
+    };
+    console.error("There is problem in sending mail:", err);
+  }
 };
 
 const searchBuddy = async (ctx) => {
   let buddies;
+  console.log("buddy search called:");
   try {
     const { _searchTerm } = ctx.query;
+    console.log("searchterm  ", _searchTerm);
 
     if (_searchTerm) {
       buddies = await userCollection
@@ -91,4 +132,116 @@ const searchBuddy = async (ctx) => {
   }
 };
 
-module.exports = { addBuddy, searchBuddy };
+const addBuddy = async (ctx) => {
+  const buddytoken = ctx.request.body.token;
+  const decision = ctx.request.body.decision;
+
+  if (decision === "reject") {
+    ctx.status = 201;
+    ctx.body = {
+      error: "Request adding buddy rejected",
+    };
+    return;
+  }
+  try {
+    const { userId, buddyId } = jwt.verify(buddytoken, process.env.SECRET_KEY);
+    // console.log("buddy token ", buddytoken);
+    // console.log(
+    //   "Buddy token verified userid =",
+    //   userId,
+    //   " Buddy id =",
+    //   buddyId
+    // );
+
+    await userCollection.updateOne(
+      {
+        userId: userId,
+      },
+      {
+        $addToSet: { buddies: buddyId },
+      }
+    );
+
+    await userCollection.updateOne(
+      {
+        userId: buddyId,
+      },
+      {
+        $addToSet: { buddies: userId },
+      }
+    );
+    console.log("Buddies updated Succesfully");
+    ctx.body = {
+      status: 200,
+      message: "Buddy added succesfully",
+    };
+  } catch (err) {
+    ctx.status = 401;
+    ctx.body = {
+      error: "Unauthorized user - Bad Request from Buddy ",
+    };
+  }
+};
+
+const showBuddy = async (ctx) => {
+  try {
+    const userId = ctx.user.userId;
+
+    const user = await userCollection.findOne({
+      userId: userId,
+    });
+
+    console.log("Show buddy channels ", user.buddies);
+
+    const buddies = await userCollection
+      .find({
+        userId: { $in: user.buddies },
+      })
+      .toArray();
+
+    console.log("Buddies fetched succesfully");
+    if (buddies.length === 0) {
+      ctx.body = { status: 204, buddies };
+    } else {
+      ctx.body = { status: 200, buddies };
+    }
+  } catch (err) {
+    ctx.status = 201;
+    ctx.body = "error showing buddys";
+  }
+};
+
+const buddyChannels = async (ctx) => {
+  try {
+    const userId = ctx.user.userId;
+
+    const user = await userCollection.findOne({
+      userId: userId,
+    });
+
+    // console.log("in buddies channel ", userId, user);
+    const isPremium = user.isPremium;
+    const buddyId = ctx.params.id;
+    ctx.user.userId = buddyId;
+    console.log("in buddies channel buddyid", buddyId, ctx.user.userId);
+
+    // ->called viewSubscribed function because functionality is already made
+    // -> passing the ispremium for saying that current login person is premium or not then show channels as per that
+    // -> passing buddyid just to make decision that... if buddy id is not UNDEFINED then response should be returned otherwise from that function
+    // it will go to the client
+
+    const result = await viewSubscribedChannel(ctx, isPremium, buddyId);
+    ctx.body = result;
+  } catch (err) {
+    (ctx.status = 201), (ctx.body = "error in showing buddies channel");
+    console.log("buddy channels ", err);
+  }
+};
+
+module.exports = {
+  requestBuddy,
+  searchBuddy,
+  addBuddy,
+  showBuddy,
+  buddyChannels,
+};

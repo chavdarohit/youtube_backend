@@ -169,7 +169,7 @@ async function subscribeChannel(ctx) {
   }
 }
 
-async function viewSubscribedChannel(ctx) {
+async function viewSubscribedChannel(ctx, isPremium, buddyId) {
   const userId = ctx.user.userId;
   try {
     const userschannel = await userCollection.findOne({
@@ -180,47 +180,87 @@ async function viewSubscribedChannel(ctx) {
     const ids = userschannel.channelsSubscribed.map((item) => item.id);
 
     // fetching th items from the all channels and selecting that where the user has subscribed
-    const channels = await suggestedCollection
+    let channels = await suggestedCollection
       .find({ _id: { $in: ids } })
       .toArray();
 
     console.log("view channel subscribed ");
 
+    if (!isPremium) {
+      channels = channels.filter((item) => item.isPremium === false);
+      console.log("user is not premium");
+    }
+
     if (channels.length === 0) {
+      //if buddy id is there then return to buddy controller for response
+      //otherwise send response from here
+      if (buddyId) return { status: 204, channels };
+      console.log("no channels subscibred found");
       ctx.body = { status: 204, channels };
     } else {
+      if (buddyId) return { status: 200, channels };
+      console.log("All channels subscribed", channels);
       ctx.body = { status: 200, channels };
     }
   } catch (err) {
-    ctx.body = { status: 204, channels: [] };
     console.log("Error viewing channel subscribed", err);
+    ctx.body = {
+      status: 500,
+      channels: [],
+      massage: "Error viewing channel subscribed",
+    };
   }
 }
 
 const pressBellIcon = async (ctx) => {
   const userId = ctx.user.userId;
   const channelId = ctx.params.id;
+  console.log("user id :", userId, " channel id :", channelId);
   try {
-    const ack = await userCollection.findOne(
+    const searchbellack = await userCollection.findOne(
       {
         userId: userId,
         "channelsSubscribed.id": new ObjectId(channelId),
       },
       {
-        channelsSubscribed: { $elemMatch: { id: new ObjectId(channelId) } },
+        projection: { "channelsSubscribed.$": 1, _id: 0 },
       }
     );
-    console.log(ack);
 
-    if (ack.modifiedCount === 0) {
+    console.log("bell icon ", searchbellack.channelsSubscribed[0].isbell);
+    //getting the value from the db of the bellicon true or false . ??
+    const bell = searchbellack.channelsSubscribed[0].isbell;
+    let update = bell ? false : true;
+
+    //base on the previous state the bell icon is getting updated
+    const updateBellack = await userCollection.updateOne(
+      {
+        userId: userId,
+        "channelsSubscribed.id": new ObjectId(channelId),
+      },
+      {
+        $set: { "channelsSubscribed.$.isbell": update },
+      }
+    );
+
+    if (updateBellack.modifiedCount === 0) {
       ctx.body = { status: 204, message: "No channel found for bell icon" };
       console.log("Problem in Bell icon");
       return;
     } else {
-      ctx.body = { status: 200, message: "Updated Bell Icon", ack };
+      ctx.body = {
+        status: 200,
+        message: update
+          ? "You will recieve Notifications"
+          : "Notification Disabled",
+      };
       console.log("Updated Bell Icon");
     }
   } catch (err) {
+    ctx.body = {
+      status: 500,
+      message: "Error while updating the bell icon",
+    };
     console.log("Error while updating the bell icon", err);
   }
 };

@@ -33,6 +33,7 @@ const signupInsert = async (ctx) => {
       image: imagePath,
       isPremium: false,
       channelsSubscribed: [],
+      buddies: [],
       userId: uuidv4(),
     };
     console.log("Storging data = ", objdata);
