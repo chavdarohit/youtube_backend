@@ -1,9 +1,10 @@
 const jwt = require("jsonwebtoken");
+const getUserFromDb = require("../utils/getUser");
 require("dotenv").config();
 
 async function verifyToken(ctx, next) {
   const token = ctx.cookies.get("token");
-  console.log("Token is ", token);
+  // console.log("Token is ", token);
   if (!token) {
     ctx.status = 401;
     ctx.body = { error: "Unauthorized - Missing Token" };
@@ -13,7 +14,12 @@ async function verifyToken(ctx, next) {
   try {
     const decode = await jwt.verify(token, process.env.SECRET_KEY);
     ctx.user = decode;
-    console.log("Token verified succesfully");
+    const user = await getUserFromDb(ctx);
+    console.log(
+      "Token verified succesfully for ",
+      user.firstname,
+      user.lastname
+    );
     await next();
   } catch (err) {
     ctx.status = 401;

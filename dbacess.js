@@ -4,6 +4,7 @@ const client = new MongoClient(process.env.MONGO_URI);
 const database = client.db("youtube-project");
 const userCollection = database.collection("users");
 const suggestedCollection = database.collection("suggested");
+const tempCollection = database.collection("temp");
 
 async function connectToDatabase() {
   try {
@@ -29,4 +30,5 @@ module.exports = {
   signupInsert,
   userCollection,
   suggestedCollection,
+  tempCollection,
 };

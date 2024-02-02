@@ -169,7 +169,7 @@ async function subscribeChannel(ctx) {
   }
 }
 
-async function viewSubscribedChannel(ctx, isPremium, buddyId) {
+async function viewSubscribedChannel(ctx, buddyisPremium, buddyId) {
   const userId = ctx.user.userId;
   try {
     const userschannel = await userCollection.findOne({
@@ -184,11 +184,13 @@ async function viewSubscribedChannel(ctx, isPremium, buddyId) {
       .find({ _id: { $in: ids } })
       .toArray();
 
+    let userisPremium = userschannel.isPremium;
+
     console.log("view channel subscribed ");
 
-    if (!isPremium) {
+    if (!buddyisPremium || !userisPremium) {
       channels = channels.filter((item) => item.isPremium === false);
-      console.log("user is not premium");
+      console.log("buddy is not premium");
     }
 
     if (channels.length === 0) {
@@ -277,7 +279,7 @@ const makeUserPremium = async (ctx) => {
         returnDocument: "after",
       }
     );
-    console.log("ack ", ack);
+    // console.log("ack ", ack);
     if (ack) {
       console.log("User account Upgraded");
       ctx.body = { status: 200, message: "User made Premium", user: ack };

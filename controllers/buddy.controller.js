@@ -1,7 +1,10 @@
 const nodemailer = require("nodemailer");
-const { userCollection } = require("../dbacess");
+const { userCollection, suggestedCollection } = require("../dbacess");
 const jwt = require("jsonwebtoken");
 const { viewSubscribedChannel } = require("./data.controller");
+const getUser = require("../utils/getUser");
+const getUserFromDb = require("../utils/getUser");
+const { ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const sendEmail = async (mailOptions) => {
@@ -223,7 +226,7 @@ const buddyChannels = async (ctx) => {
     const isPremium = user.isPremium;
     const buddyId = ctx.params.id;
     ctx.user.userId = buddyId;
-    console.log("in buddies channel buddyid", buddyId, ctx.user.userId);
+    console.log("In buddies channel buddyid", buddyId, ctx.user.userId);
 
     // ->called viewSubscribed function because functionality is already made
     // -> passing the ispremium for saying that current login person is premium or not then show channels as per that
@@ -238,10 +241,60 @@ const buddyChannels = async (ctx) => {
   }
 };
 
+const allChannels = async (ctx) => {
+  try {
+    const buddyIdFromCheckbox = ctx.request.body?.buddyId ?? [];
+
+    let buddyIds = [];
+    const user = await getUser(ctx);
+    if (Array.isArray(buddyIdFromCheckbox) && buddyIdFromCheckbox.length > 0) {
+      buddyIds = buddyIdFromCheckbox;
+    } else {
+      //array of all buddy ids
+      buddyIds = [...user.buddies, user.userId];
+    }
+    // console.log("buddyids", buddyIds);
+    let channelIds = [];
+
+    for (let element of buddyIds) {
+      ctx.user.userId = element;
+      const user = await getUserFromDb(ctx);
+      channelIds.push(
+        ...user.channelsSubscribed.map((item) => item.id.toString())
+        // ...user.channelsSubscribed.map((item) => item.id)
+      );
+    }
+    // console.log("All channels count", channelIds.length);
+    channelIds = [...new Set(channelIds)]; // removing duplicate channels
+    // console.log("without dupli count ", channelIds.length);
+
+    channelIds = channelIds.map((id) => new ObjectId(id));
+
+    console.log("Channels ids ", channelIds);
+    const channels = await suggestedCollection
+      .find({
+        _id: { $in: channelIds },
+      })
+      .toArray();
+
+    ctx.body = {
+      status: 200,
+      massage: "Channels Fetched Successfull",
+      channels,
+    };
+    console.log("Channels Fetched Successfull ", channels);
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = "something went wrong while fetching all channels";
+    console.log("error in fetching all ", err);
+  }
+};
+
 module.exports = {
   requestBuddy,
   searchBuddy,
   addBuddy,
   showBuddy,
   buddyChannels,
+  allChannels,
 };

@@ -21,7 +21,7 @@ app.use(privateRouter.routes());
 
 app.on("error", (err, ctx) => {
   console.error("Unhandled error occurred:", err);
-  // You can customize the error response here
+  // You can cust omize the error response here
   ctx.status = 500;
   ctx.body = "Internal Server Error";
 });
