@@ -243,6 +243,7 @@ const buddyChannels = async (ctx) => {
 
 const allChannels = async (ctx) => {
   try {
+    //gtting buddy ids from frontend from checkbox
     const buddyIdFromCheckbox = ctx.request.body?.buddyId ?? [];
 
     let buddyIds = [];
@@ -250,39 +251,52 @@ const allChannels = async (ctx) => {
     if (Array.isArray(buddyIdFromCheckbox) && buddyIdFromCheckbox.length > 0) {
       buddyIds = buddyIdFromCheckbox;
     } else {
-      //array of all buddy ids
+      //array of all buddy ids if no one is selected from checkbox
       buddyIds = [...user.buddies, user.userId];
     }
     // console.log("buddyids", buddyIds);
     let channelIds = [];
 
+    //fetching all the channels from the suggested collection with their id
+
     for (let element of buddyIds) {
       ctx.user.userId = element;
       const user = await getUserFromDb(ctx);
+      //pushing all the channels of each buddy into single array
       channelIds.push(
         ...user.channelsSubscribed.map((item) => item.id.toString())
-        // ...user.channelsSubscribed.map((item) => item.id)
       );
     }
-    // console.log("All channels count", channelIds.length);
     channelIds = [...new Set(channelIds)]; // removing duplicate channels
-    // console.log("without dupli count ", channelIds.length);
 
+    //converting again to the Object id for finding from  the database
     channelIds = channelIds.map((id) => new ObjectId(id));
 
-    console.log("Channels ids ", channelIds);
-    const channels = await suggestedCollection
-      .find({
-        _id: { $in: channelIds },
-      })
-      .toArray();
+    //if user is not premium it will fetch only normal channels
+    const isUserPremium = user.isPremium;
 
+    console.log("Channels ids ", channelIds);
+    let channels = [];
+    if (!isUserPremium) {
+      channels = await suggestedCollection
+        .find({
+          _id: { $in: channelIds },
+          isPremium: isUserPremium,
+        })
+        .toArray();
+    } else {
+      channels = await suggestedCollection
+        .find({
+          _id: { $in: channelIds },
+        })
+        .toArray();
+    }
     ctx.body = {
       status: 200,
       massage: "Channels Fetched Successfull",
       channels,
     };
-    console.log("Channels Fetched Successfull ", channels);
+    console.log("Channels Fetched Successfull ", channels.length);
   } catch (err) {
     ctx.status = 500;
     ctx.body = "something went wrong while fetching all channels";
