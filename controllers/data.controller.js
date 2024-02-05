@@ -1,10 +1,24 @@
-const { userCollection, suggestedCollection } = require("../dbacess");
-const { ObjectId } = require("mongodb");
+
+const {
+  getUserFromDbUsingId,
+  getUserChannelIds,
+  getUserFromDb,
+  getUserChannelBellIconStatus,
+  updateUserChannelBellIconStatus,
+  updateUserToPremium,
+  subscribeChannelForUser,
+  unsubscribeChannelForUser,
+} = require("../queries/userCollection");
+const {
+  getAllChannels,
+  getChannelsBySearch,
+  getAllChannelsFromIds,
+} = require("../queries/suggestedCollections");
 
 async function viewProfile(ctx) {
   const userId = ctx.user.userId;
   console.log("User id in view profile ", userId);
-  const user = await userCollection.findOne({ userId: userId });
+  const user = await getUserFromDb(ctx);
   if (!user) {
     ctx.status = 404;
     ctx.body = "User Not found";
@@ -30,16 +44,13 @@ async function suggestedChannels(ctx) {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
 
-    const user = await userCollection.findOne({ userId: userId });
-    const channels = await suggestedCollection.find({}).toArray();
+    const user = await getUserFromDbUsingId(userId);
+    const channels = await getAllChannels();
 
     const ispremium = user.isPremium;
 
     //this is the subscribed channel already subscribe by user
-    const userschannel = await userCollection.findOne(
-      { userId: userId },
-      { projection: { channelsSubscribed: 1, _id: 0 } }
-    );
+    const userschannel = await getUserChannelIds(userId);
 
     //filtering and removing channels which is already subscribed by the user
     let filteredChannel;
@@ -60,11 +71,7 @@ async function suggestedChannels(ctx) {
     }
 
     if (_searchTerm) {
-      let searchChannels = await suggestedCollection
-        .find({
-          channelName: new RegExp(_searchTerm, "i"),
-        })
-        .toArray();
+      let searchChannels = await getChannelsBySearch(_searchTerm);
 
       if (!ispremium) {
         searchChannels = searchChannels.filter(
@@ -116,19 +123,12 @@ async function subscribeChannel(ctx) {
   const channelId = ctx.params.id;
   console.log("id ", userId, " channel id ", channelId);
   try {
-    const channel = await suggestedCollection.findOne({
-      _id: new ObjectId(channelId),
-    });
+    // const channel = await suggestedCollection.findOne({
+    //   _id: new ObjectId(channelId),
+    // });
     // console.log("channel for subscribng ", channel.channelName);
 
-    const addtosetack = await userCollection.updateOne(
-      { userId: userId },
-      {
-        $addToSet: {
-          channelsSubscribed: { id: new ObjectId(channelId), isbell: false },
-        },
-      }
-    );
+    const addtosetack = await subscribeChannelForUser(userId, channelId);
     if (addtosetack.modifiedCount > 0) {
       ctx.body = {
         status: 200,
@@ -136,16 +136,7 @@ async function subscribeChannel(ctx) {
       };
       console.log("Subscribed Succesfully");
     } else {
-      const pullack = await userCollection.updateOne(
-        {
-          userId: userId,
-        },
-        {
-          $pull: {
-            channelsSubscribed: { id: new ObjectId(channelId) },
-          },
-        }
-      );
+      const pullack = await unsubscribeChannelForUser(userId, channelId);
       if (pullack.modifiedCount > 0) {
         ctx.body = {
           status: 200,
@@ -170,20 +161,14 @@ async function subscribeChannel(ctx) {
 }
 
 async function viewSubscribedChannel(ctx, buddyisPremium, buddyId) {
-  const userId = ctx.user.userId;
   try {
-    const userschannel = await userCollection.findOne({
-      userId: userId,
-    });
+    const userschannel = await getUserFromDb(ctx);
 
     //taken the ids of the subscribed array into another array
     const ids = userschannel.channelsSubscribed.map((item) => item.id);
 
     // fetching th items from the all channels and selecting that where the user has subscribed
-    let channels = await suggestedCollection
-      .find({ _id: { $in: ids } })
-      .toArray();
-
+    let channels = await getAllChannelsFromIds(ids);
     let userisPremium = userschannel.isPremium;
 
     console.log("view channel subscribed ");
@@ -219,15 +204,7 @@ const pressBellIcon = async (ctx) => {
   const channelId = ctx.params.id;
   console.log("user id :", userId, " channel id :", channelId);
   try {
-    const searchbellack = await userCollection.findOne(
-      {
-        userId: userId,
-        "channelsSubscribed.id": new ObjectId(channelId),
-      },
-      {
-        projection: { "channelsSubscribed.$": 1, _id: 0 },
-      }
-    );
+    const searchbellack = await getUserChannelBellIconStatus(userId, channelId);
 
     console.log("bell icon ", searchbellack.channelsSubscribed[0].isbell);
     //getting the value from the db of the bellicon true or false . ??
@@ -235,16 +212,11 @@ const pressBellIcon = async (ctx) => {
     let update = bell ? false : true;
 
     //base on the previous state the bell icon is getting updated
-    const updateBellack = await userCollection.updateOne(
-      {
-        userId: userId,
-        "channelsSubscribed.id": new ObjectId(channelId),
-      },
-      {
-        $set: { "channelsSubscribed.$.isbell": update },
-      }
+    const updateBellack = await updateUserChannelBellIconStatus(
+      userId,
+      channelId,
+      update
     );
-
     if (updateBellack.modifiedCount === 0) {
       ctx.body = { status: 204, message: "No channel found for bell icon" };
       console.log("Problem in Bell icon");
@@ -270,16 +242,7 @@ const pressBellIcon = async (ctx) => {
 const makeUserPremium = async (ctx) => {
   try {
     const userId = ctx.user.userId;
-    const ack = await userCollection.findOneAndUpdate(
-      {
-        userId: userId,
-      },
-      [{ $set: { isPremium: { $not: "$isPremium" } } }],
-      {
-        returnDocument: "after",
-      }
-    );
-    // console.log("ack ", ack);
+    const ack = await updateUserToPremium(userId); // console.log("ack ", ack);
     if (ack) {
       console.log("User account Upgraded");
       ctx.body = { status: 200, message: "User made Premium", user: ack };

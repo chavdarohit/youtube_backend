@@ -1,3 +1,4 @@
+
 const validateEmailid = async (ctx, next) => {
   const { email } = ctx.request.body;
 
@@ -20,4 +21,4 @@ function validateEmail(email) {
   return pattern.test(email);
 }
 
-module.exports = validateEmailid;
+module.exports = {validateEmailid,validateEmail};

@@ -1,14 +1,17 @@
 const bcrypt = require("bcrypt");
-const db = require("../dbacess");
 const makeJwtToken = require("../utils/MakeAuthToken");
-const { userCollection } = require("../dbacess");
 const { v4: uuidv4 } = require("uuid");
+const {
+  signup,
+  getUserFromDbUsingId,
+  getUserFromDbUsingEmail,
+} = require("../queries/userCollection");
+
 const signupInsert = async (ctx) => {
   let {
     firstname: fname,
     lastname: lname,
     password: pssd,
-    cpassword: confpssd,
     email: email,
     mobile,
     gender: gender,
@@ -25,7 +28,7 @@ const signupInsert = async (ctx) => {
       firstname: fname,
       lastname: lname,
       password: encryptedpssd,
-      email: email.toLowerCase(),
+      email: email.toLowerCase().trim(),
       mobile: mobile,
       gender,
       birthdate,
@@ -37,9 +40,10 @@ const signupInsert = async (ctx) => {
       userId: uuidv4(),
     };
     console.log("Storging data = ", objdata);
-    const ack = await db.signupInsert(objdata);
-    const user = await userCollection.findOne({ userId: objdata.userId });
-    const userId = user.userId;
+    const ack = await signup(objdata);
+    const user = await getUserFromDbUsingId(objdata.userId);
+    // const user = await userCollection.findOne({ userId: objdata.userId });
+    const userId = objdata.userId;
     console.log("User retrieved ", user, userId);
     const token = makeJwtToken(userId);
     ctx.status = 200;
@@ -57,9 +61,10 @@ const signupInsert = async (ctx) => {
 };
 
 const loginUser = async (ctx) => {
+  console.log("In login", ctx);
   let { email, password } = ctx.request.body;
   email = email.toLowerCase();
-  const userExists = await userCollection.findOne({ email });
+  const userExists = await getUserFromDbUsingEmail(email);
 
   if (!userExists) {
     ctx.status = 401;
@@ -73,8 +78,8 @@ const loginUser = async (ctx) => {
     console.log("Invalid credentials");
   } else {
     const token = makeJwtToken(userExists.userId);
+    ctx.status = 200;
     ctx.body = {
-      status: 200,
       message: "Login succesfull",
       token,
       user: userExists,

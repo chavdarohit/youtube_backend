@@ -3,7 +3,7 @@ const serve = require("koa-static");
 const app = new koa();
 const publicRouter = require("./routes/publicroutes");
 const privateRouter = require("./routes/privateroutes");
-const db = require("./dbacess");
+const db = require("./config/dbconfig");
 const { koaBody } = require("koa-body");
 const cors = require("koa-cors");
 

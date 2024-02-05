@@ -1,10 +1,21 @@
 const nodemailer = require("nodemailer");
-const { userCollection, suggestedCollection } = require("../dbacess");
 const jwt = require("jsonwebtoken");
 const { viewSubscribedChannel } = require("./data.controller");
-const getUser = require("../utils/getUser");
-const getUserFromDb = require("../utils/getUser");
+const {
+  getUserFromDb,
+  getUserFromDbUsingId,
+  getBuddyFromDbUsingSearch,
+  getAllBuddies,
+  getBuddyFromIds,
+  addBuddyToEachOther,
+  addBuddyToUser,
+  addUserToBuddy,
+} = require("../queries/userCollection");
 const { ObjectId } = require("mongodb");
+const {
+  getPremiumAndNonChannelsFromIds,
+  getAllChannelsFromIds,
+} = require("../queries/suggestedCollections");
 require("dotenv").config();
 
 const sendEmail = async (mailOptions) => {
@@ -33,9 +44,7 @@ const sendEmail = async (mailOptions) => {
 const requestBuddy = async (ctx) => {
   const userId = ctx.user.userId;
   const buddyId = ctx.request.body.buddyId;
-  const buddyExists = await userCollection.findOne({
-    userId: buddyId,
-  });
+  const buddyExists = await getUserFromDbUsingId(buddyId);
 
   if (!buddyExists) {
     ctx.body = {
@@ -88,44 +97,9 @@ const searchBuddy = async (ctx) => {
     console.log("searchterm  ", _searchTerm);
 
     if (_searchTerm) {
-      buddies = await userCollection
-        .find(
-          {
-            $or: [
-              { firstname: new RegExp(_searchTerm, "i") },
-              {
-                lastname: new RegExp(_searchTerm, "i"),
-              },
-            ],
-          },
-          {
-            projection: {
-              firstname: 1,
-              lastname: 1,
-              email: 1,
-              userId: 1,
-              image: 1,
-              _id: 0,
-            },
-          }
-        )
-        .toArray();
+      buddies = await getBuddyFromDbUsingSearch(_searchTerm);
     } else {
-      buddies = await userCollection
-        .find(
-          {},
-          {
-            projection: {
-              firstname: 1,
-              lastname: 1,
-              email: 1,
-              userId: 1,
-              image: 1,
-              _id: 0,
-            },
-          }
-        )
-        .toArray();
+      buddies = await getAllBuddies();
     }
     console.log("Buddies fetched succesfully");
     ctx.body = { status: 200, buddies };
@@ -148,35 +122,23 @@ const addBuddy = async (ctx) => {
   }
   try {
     const { userId, buddyId } = jwt.verify(buddytoken, process.env.SECRET_KEY);
-    // console.log("buddy token ", buddytoken);
-    // console.log(
-    //   "Buddy token verified userid =",
-    //   userId,
-    //   " Buddy id =",
-    //   buddyId
-    // );
-
-    await userCollection.updateOne(
-      {
-        userId: userId,
-      },
-      {
-        $addToSet: { buddies: buddyId },
-      }
+    console.log("buddy token ", buddytoken);
+    console.log(
+      "Buddy token verified userid =",
+      userId,
+      " Buddy id =",
+      buddyId
     );
 
-    await userCollection.updateOne(
-      {
-        userId: buddyId,
-      },
-      {
-        $addToSet: { buddies: userId },
-      }
-    );
+    await addBuddyToUser(userId, buddyId);
+    await addUserToBuddy(buddyId, userId);
+
+    const buddy = await getUserFromDbUsingId(buddyId);
     console.log("Buddies updated Succesfully");
     ctx.body = {
       status: 200,
       message: "Buddy added succesfully",
+      user: buddy,
     };
   } catch (err) {
     ctx.status = 401;
@@ -188,19 +150,11 @@ const addBuddy = async (ctx) => {
 
 const showBuddy = async (ctx) => {
   try {
-    const userId = ctx.user.userId;
+    const user = await getUserFromDb(ctx);
 
-    const user = await userCollection.findOne({
-      userId: userId,
-    });
+    console.log("Show buddy ", user.buddies);
 
-    console.log("Show buddy channels ", user.buddies);
-
-    const buddies = await userCollection
-      .find({
-        userId: { $in: user.buddies },
-      })
-      .toArray();
+    const buddies = await getBuddyFromIds(user.buddies);
 
     console.log("Buddies fetched succesfully");
     if (buddies.length === 0) {
@@ -211,16 +165,13 @@ const showBuddy = async (ctx) => {
   } catch (err) {
     ctx.status = 201;
     ctx.body = "error showing buddys";
+    console.log("error showing buddys ", err);
   }
 };
 
 const buddyChannels = async (ctx) => {
   try {
-    const userId = ctx.user.userId;
-
-    const user = await userCollection.findOne({
-      userId: userId,
-    });
+    const user = await getUserFromDb(ctx);
 
     // console.log("in buddies channel ", userId, user);
     const isPremium = user.isPremium;
@@ -243,11 +194,11 @@ const buddyChannels = async (ctx) => {
 
 const allChannels = async (ctx) => {
   try {
-    //gtting buddy ids from frontend from checkbox
+    // gtting buddy ids from frontend from checkbox
     const buddyIdFromCheckbox = ctx.request.body?.buddyId ?? [];
-
+    // console.log("Buddy id from checkbox ", buddyIdFromCheckbox);
     let buddyIds = [];
-    const user = await getUser(ctx);
+    const user = await getUserFromDb(ctx);
     if (Array.isArray(buddyIdFromCheckbox) && buddyIdFromCheckbox.length > 0) {
       buddyIds = buddyIdFromCheckbox;
     } else {
@@ -258,7 +209,7 @@ const allChannels = async (ctx) => {
     let channelIds = [];
 
     //fetching all the channels from the suggested collection with their id
-
+    // console.log("buddy ids ", buddyIds);
     for (let element of buddyIds) {
       ctx.user.userId = element;
       const user = await getUserFromDb(ctx);
@@ -278,18 +229,12 @@ const allChannels = async (ctx) => {
     console.log("Channels ids ", channelIds);
     let channels = [];
     if (!isUserPremium) {
-      channels = await suggestedCollection
-        .find({
-          _id: { $in: channelIds },
-          isPremium: isUserPremium,
-        })
-        .toArray();
+      channels = await getPremiumAndNonChannelsFromIds(
+        channelIds,
+        isUserPremium
+      );
     } else {
-      channels = await suggestedCollection
-        .find({
-          _id: { $in: channelIds },
-        })
-        .toArray();
+      channels = await getAllChannelsFromIds(channelIds);
     }
     ctx.body = {
       status: 200,
