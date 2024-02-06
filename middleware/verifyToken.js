@@ -13,9 +13,10 @@ async function verifyToken(ctx, next) {
     return;
   }
   try {
-    const decode = await jwt.verify(token, process.env.SECRET_KEY);
+    const decode = jwt.verify(token, process.env.SECRET_KEY);
     ctx.user = decode;
     const user = await getUserFromDb(ctx);
+    ctx.state.user = user;
     console.log(
       "Token verified succesfully for ",
       user.firstname,

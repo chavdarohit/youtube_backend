@@ -7,7 +7,6 @@ const {
   getBuddyFromDbUsingSearch,
   getAllBuddies,
   getBuddyFromIds,
-  addBuddyToEachOther,
   addBuddyToUser,
   addUserToBuddy,
 } = require("../queries/userCollection");
@@ -52,9 +51,8 @@ const requestBuddy = async (ctx) => {
       message: "Unauthorised Buddy Request",
     };
     return;
-  } else {
-    console.log("Buddy exists ...");
   }
+  console.log("Buddy exists ...");
 
   const urlToken = jwt.sign({ userId, buddyId }, process.env.SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRY_TIME,
@@ -91,7 +89,6 @@ const requestBuddy = async (ctx) => {
 
 const searchBuddy = async (ctx) => {
   let buddies;
-  console.log("buddy search called:");
   try {
     const { _searchTerm } = ctx.query;
     console.log("searchterm  ", _searchTerm);
@@ -122,13 +119,13 @@ const addBuddy = async (ctx) => {
   }
   try {
     const { userId, buddyId } = jwt.verify(buddytoken, process.env.SECRET_KEY);
-    console.log("buddy token ", buddytoken);
-    console.log(
-      "Buddy token verified userid =",
-      userId,
-      " Buddy id =",
-      buddyId
-    );
+    // console.log("buddy token ", buddytoken);
+    // console.log(
+    //   "Buddy token verified userid =",
+    //   userId,
+    //   " Buddy id =",
+    //   buddyId
+    // );
 
     await addBuddyToUser(userId, buddyId);
     await addUserToBuddy(buddyId, userId);

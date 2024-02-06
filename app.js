@@ -33,3 +33,5 @@ app.listen(80, () => {
 (async () => {
   await db.connectToDatabase();
 })();
+
+module.exports = app;

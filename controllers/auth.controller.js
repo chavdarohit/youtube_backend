@@ -61,7 +61,6 @@ const signupInsert = async (ctx) => {
 };
 
 const loginUser = async (ctx) => {
-  console.log("In login", ctx);
   let { email, password } = ctx.request.body;
   email = email.toLowerCase();
   const userExists = await getUserFromDbUsingEmail(email);
@@ -76,16 +75,17 @@ const loginUser = async (ctx) => {
     ctx.status = 401;
     ctx.body = "Invalid credentials";
     console.log("Invalid credentials");
-  } else {
-    const token = makeJwtToken(userExists.userId);
-    ctx.status = 200;
-    ctx.body = {
-      message: "Login succesfull",
-      token,
-      user: userExists,
-    };
-    console.log("Login succesfull");
+    return;
   }
+
+  const token = makeJwtToken(userExists.userId);
+  ctx.status = 200;
+  ctx.body = {
+    message: "Login succesfull",
+    token,
+    user: userExists,
+  };
+  console.log("Login succesfull");
 };
 
 module.exports = { signupInsert, loginUser };

@@ -109,6 +109,11 @@ const getBuddyFromIds = async (buddysIds) => {
     })
     .toArray();
 };
+
+const subscribeUnsubscribe = async (uid, condition) => {
+  return await userCollection.updateOne({ userId: uid }, condition);
+};
+
 const subscribeChannelForUser = async (uid, channelId) => {
   return await userCollection.updateOne(
     { userId: uid },
@@ -148,7 +153,7 @@ const updateUserChannelBellIconStatus = async (userId, channelId, update) => {
   return userCollection.updateOne(
     {
       userId: userId,
-      "channelsSubscribed.id": new ObjectId(channelId),
+      "channelsSubscribed.channelId": channelId,
     },
     {
       $set: { "channelsSubscribed.$.isbell": update },
@@ -182,5 +187,6 @@ module.exports = {
   getAllBuddies,
   addBuddyToUser,
   addUserToBuddy,
+  subscribeUnsubscribe,
   getUserChannelIds,
 };

@@ -1,13 +1,8 @@
-
 const {
-  getUserFromDbUsingId,
-  getUserChannelIds,
-  getUserFromDb,
   getUserChannelBellIconStatus,
   updateUserChannelBellIconStatus,
   updateUserToPremium,
-  subscribeChannelForUser,
-  unsubscribeChannelForUser,
+  subscribeUnsubscribe,
 } = require("../queries/userCollection");
 const {
   getAllChannels,
@@ -16,141 +11,83 @@ const {
 } = require("../queries/suggestedCollections");
 
 async function viewProfile(ctx) {
-  const userId = ctx.user.userId;
-  console.log("User id in view profile ", userId);
-  const user = await getUserFromDb(ctx);
+  const user = await ctx.state.user;
+  console.log("User id in view profile ", user.firstname);
   if (!user) {
     ctx.status = 404;
     ctx.body = "User Not found";
     console.log("User not found in Db");
     return;
-  } else {
-    ctx.body = {
-      status: 200,
-      user,
-    };
-    console.log("View Profile succesfully");
   }
+
+  ctx.body = {
+    status: 200,
+    user,
+  };
+  console.log("View Profile succesfully");
 }
 
 async function suggestedChannels(ctx) {
+  const { _limit, _page, _searchTerm } = ctx.query;
+  const user = await ctx.state.user;
+
+  const limit = parseInt(_limit) || 10;
+  const page = parseInt(_page) || 1;
+  const skip = (page - 1) * limit;
+
   try {
-    const userId = ctx.user.userId;
-    const { _limit, _page, _searchTerm } = ctx.query;
+    let condition = {};
+    if (_searchTerm) condition.channelName = new RegExp(_searchTerm, "i");
+    if (!user.isPremium) condition.isPremium = user.isPremium;
 
-    const limit = parseInt(_limit) || 10;
-    const page = parseInt(_page) || 1;
-
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-
-    const user = await getUserFromDbUsingId(userId);
-    const channels = await getAllChannels();
-
-    const ispremium = user.isPremium;
-
-    //this is the subscribed channel already subscribe by user
-    const userschannel = await getUserChannelIds(userId);
-
-    //filtering and removing channels which is already subscribed by the user
-    let filteredChannel;
-    try {
-      if (userschannel.channelsSubscribed.length === 0) {
-        filteredChannel = channels;
-      } else {
-        filteredChannel = channels.filter(
-          (item1) =>
-            !userschannel.channelsSubscribed.some(
-              (item2) => item1._id.toHexString() === item2.id.toHexString()
-            )
-        );
-        // console.log("Filtered ", filteredChannel);
-      }
-    } catch (err) {
-      console.log("error filtering data");
-    }
-
-    if (_searchTerm) {
-      let searchChannels = await getChannelsBySearch(_searchTerm);
-
-      if (!ispremium) {
-        searchChannels = searchChannels.filter(
-          (item) => item.isPremium === false
-        );
-      }
-
-      // console.log("search channels ", searchChannels);
-      if (searchChannels.length === 0) {
-        ctx.body = {
-          status: 202,
-          channels: searchChannels,
-        };
-        return;
-      } else {
-        ctx.body = {
-          status: 200,
-          channels: searchChannels,
-        };
-        return;
-      }
-    }
-    console.log("Showing limited channels");
-
-    if (!ispremium) {
-      filteredChannel = filteredChannel.filter(
-        (item) => item.isPremium === false
-      );
-    }
-
-    let limitchannels = filteredChannel.slice(startIndex, endIndex); //channels with limit
-    // console.log("limit chNNELS : ", startIndex, endIndex, limitchannels);
-    console.log(
-      "suggested Channels fetched by ",
-      user.firstname,
-      user.lastname
+    // This is the subscribed channel already subscribe by user
+    const userschannel = await user.channelsSubscribed.map(
+      (obj) => obj.channelId
     );
+    //filtering and removing channels which is already subscribed by the user
+    if (userschannel.length) {
+      condition.channelId = { $nin: userschannel };
+    }
+    // console.log("Filtered ", channels);
+    let channels = await getAllChannels(condition, skip, limit);
+
     ctx.body = {
       status: 200,
-      channels: limitchannels,
+      channels,
     };
   } catch (err) {
-    console.log("error while suggestion ", err);
+    ctx.body = {
+      status: 500,
+      massage: "Internal server error",
+    };
+    console.log("error while suggesting channels", err);
   }
 }
 
 async function subscribeChannel(ctx) {
-  const userId = ctx.user.userId;
+  const userId = ctx.state.user.userId;
   const channelId = ctx.params.id;
-  console.log("id ", userId, " channel id ", channelId);
+  console.log("user id ", userId, " channel id ", channelId);
   try {
-    // const channel = await suggestedCollection.findOne({
-    //   _id: new ObjectId(channelId),
-    // });
-    // console.log("channel for subscribng ", channel.channelName);
-
-    const addtosetack = await subscribeChannelForUser(userId, channelId);
-    if (addtosetack.modifiedCount > 0) {
+    let condition = {
+      $addToSet: {
+        channelsSubscribed: { channelId: channelId, isbell: false },
+      },
+    };
+    const ack = await subscribeUnsubscribe(userId, condition);
+    if (ack.modifiedCount === 0 && ack.matchedCount === 1) {
       ctx.body = {
-        status: 200,
-        massage: "Subscribed Succesfully",
+        status: 204,
+        massage: "Channel Already Subscribed",
       };
-      console.log("Subscribed Succesfully");
-    } else {
-      const pullack = await unsubscribeChannelForUser(userId, channelId);
-      if (pullack.modifiedCount > 0) {
-        ctx.body = {
-          status: 200,
-          massage: "Channel Unsubscribed",
-        };
-        console.log("Channel Unsubscribed");
-      } else {
-        ctx.body = {
-          status: 204,
-          massage: "Channel Not found",
-        };
-        console.log("Channel Not found");
-      }
+      console.log("Channel Already Subscribed");
+      return;
     }
+    ctx.body = {
+      status: 200,
+      massage: "Channel Subscribed",
+    };
+    console.log("Channel Subscribed");
   } catch (err) {
     console.error("Error updating data:", err);
     ctx.body = {
@@ -160,33 +97,79 @@ async function subscribeChannel(ctx) {
   }
 }
 
+async function unsubscribeChannel(ctx) {
+  const userId = ctx.state.user.userId;
+  const channelId = ctx.params.id;
+  console.log("user id ", userId, " channel id ", channelId);
+  try {
+    let condition = {
+      $pull: {
+        channelsSubscribed: { channelId: channelId },
+      },
+    };
+    const ack = await subscribeUnsubscribe(userId, condition);
+    if (ack.modifiedCount === 0) {
+      ctx.body = {
+        status: 204,
+        massage: "Channel Not found",
+      };
+      console.log("Channel Not found");
+      return;
+    }
+    ctx.body = {
+      status: 200,
+      massage: "Channel Unsubscribed",
+    };
+    console.log("Channel Unsubscribed");
+  } catch (err) {
+    console.error("Error unsubscring channel:", err);
+    ctx.body = {
+      status: 401,
+      massage: "There is something wrong while Unsubscribe",
+    };
+  }
+}
+
 async function viewSubscribedChannel(ctx, buddyisPremium, buddyId) {
   try {
-    const userschannel = await getUserFromDb(ctx);
+    const user = ctx.state.user;
+    const { name, subscribers } = ctx.query;
 
     //taken the ids of the subscribed array into another array
-    const ids = userschannel.channelsSubscribed.map((item) => item.id);
+    const ids = user.channelsSubscribed.map((item) => item.channelId);
 
     // fetching th items from the all channels and selecting that where the user has subscribed
-    let channels = await getAllChannelsFromIds(ids);
-    let userisPremium = userschannel.isPremium;
+    let condition = {};
+    condition.channelId = { $in: ids };
+    if (!user.isPremium) condition.isPremium = user.isPremium;
 
-    console.log("view channel subscribed ");
-
-    if (!buddyisPremium || !userisPremium) {
-      channels = channels.filter((item) => item.isPremium === false);
-      console.log("buddy is not premium");
+    let sort = {};
+    if (name) {
+      if (name === "asc") sort.channelName = 1;
+      if (name === "desc") sort.channelName = -1;
     }
+    if (subscribers) {
+      if (subscribers === "asc") sort.subscribersCount = 1;
+      if (subscribers === "desc") sort.subscribersCount = -1;
+    }
+
+    let channels = await getAllChannels(condition, 0, 1000, sort);
+    console.log("view channel subscribed ", sort);
+
+    // if (!buddyisPremium || !userisPremium) {
+    //   channels = channels.filter((item) => item.isPremium === false);
+    //   console.log("buddy is not premium");
+    // }
 
     if (channels.length === 0) {
       //if buddy id is there then return to buddy controller for response
       //otherwise send response from here
-      if (buddyId) return { status: 204, channels };
-      console.log("no channels subscibred found");
+      // if (buddyId) return { status: 204, channels };
+      console.log("no channels found");
       ctx.body = { status: 204, channels };
     } else {
-      if (buddyId) return { status: 200, channels };
-      console.log("All channels subscribed", channels);
+      // if (buddyId) return { status: 200, channels };
+      console.log("All subscribed channels");
       ctx.body = { status: 200, channels };
     }
   } catch (err) {
@@ -200,36 +183,37 @@ async function viewSubscribedChannel(ctx, buddyisPremium, buddyId) {
 }
 
 const pressBellIcon = async (ctx) => {
-  const userId = ctx.user.userId;
+  const user = ctx.state.user;
   const channelId = ctx.params.id;
-  console.log("user id :", userId, " channel id :", channelId);
-  try {
-    const searchbellack = await getUserChannelBellIconStatus(userId, channelId);
+  console.log("user id :", user.userId, " channel id :", channelId);
 
-    console.log("bell icon ", searchbellack.channelsSubscribed[0].isbell);
+  try {
     //getting the value from the db of the bellicon true or false . ??
-    const bell = searchbellack.channelsSubscribed[0].isbell;
-    let update = bell ? false : true;
+    const channel = await user.channelsSubscribed.find(
+      (obj) => obj.channelId === channelId
+    );
+    console.log("Bell is ", channel.isbell);
+    const bell = channel.isbell ? false : true;
 
     //base on the previous state the bell icon is getting updated
     const updateBellack = await updateUserChannelBellIconStatus(
-      userId,
+      user.userId,
       channelId,
-      update
+      bell
     );
     if (updateBellack.modifiedCount === 0) {
       ctx.body = { status: 204, message: "No channel found for bell icon" };
       console.log("Problem in Bell icon");
       return;
-    } else {
-      ctx.body = {
-        status: 200,
-        message: update
-          ? "You will recieve Notifications"
-          : "Notification Disabled",
-      };
-      console.log("Updated Bell Icon");
     }
+
+    ctx.body = {
+      status: 200,
+      message: bell
+        ? "You will recieve Notifications"
+        : "Notification Disabled",
+    };
+    console.log("Updated Bell Icon");
   } catch (err) {
     ctx.body = {
       status: 500,
@@ -245,7 +229,13 @@ const makeUserPremium = async (ctx) => {
     const ack = await updateUserToPremium(userId); // console.log("ack ", ack);
     if (ack) {
       console.log("User account Upgraded");
-      ctx.body = { status: 200, message: "User made Premium", user: ack };
+      ctx.body = {
+        status: 200,
+        message: ack.isPremium
+          ? "User updated to Premium"
+          : "User downgrade to Normal ",
+        user: ack,
+      };
     }
   } catch (err) {
     ctx.body = { status: 201, message: "Error making premium" };
@@ -253,10 +243,16 @@ const makeUserPremium = async (ctx) => {
   }
 };
 
+const updateprofile = async (ctx) => {
+  ctx.body = "hii in update profile";
+};
+
 module.exports = {
+  updateprofile,
   viewProfile,
   suggestedChannels,
   subscribeChannel,
+  unsubscribeChannel,
   viewSubscribedChannel,
   pressBellIcon,
   makeUserPremium,

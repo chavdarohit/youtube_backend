@@ -9,15 +9,20 @@ const getPremiumAndNonChannelsFromIds = async (channelIds, isUserPremium) => {
     .toArray();
 };
 
-const getAllChannelsFromIds = async (channelIds) => {
+const getChannelCountFromId = async (channelId) => {
   return suggestedCollection
     .find({
-      _id: { $in: channelIds },
+      channelId: channelId,
     })
-    .toArray();
+    .count();
 };
-const getAllChannels = async () => {
-  return suggestedCollection.find({}).toArray();
+const getAllChannels = async (condition, skip, limit, sort = {}) => {
+  return await suggestedCollection
+    .find(condition)
+    .skip(skip)
+    .limit(limit)
+    .sort(sort)
+    .toArray();
 };
 
 const getChannelsBySearch = async (_searchTerm) => {
@@ -30,7 +35,7 @@ const getChannelsBySearch = async (_searchTerm) => {
 
 module.exports = {
   getPremiumAndNonChannelsFromIds,
-  getAllChannelsFromIds,
+  getChannelCountFromId,
   getChannelsBySearch,
   getAllChannels,
 };
