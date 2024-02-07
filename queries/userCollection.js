@@ -110,7 +110,7 @@ const getBuddyFromIds = async (buddysIds) => {
     .toArray();
 };
 
-const subscribeUnsubscribe = async (uid, condition) => {
+const updateUser = async (uid, condition) => {
   return await userCollection.updateOne({ userId: uid }, condition);
 };
 
@@ -174,6 +174,8 @@ const updateUserToPremium = async (userId) => {
 };
 module.exports = {
   updateUserToPremium,
+
+  updateUser,
   updateUserChannelBellIconStatus,
   getUserChannelBellIconStatus,
   subscribeChannelForUser,
@@ -187,6 +189,5 @@ module.exports = {
   getAllBuddies,
   addBuddyToUser,
   addUserToBuddy,
-  subscribeUnsubscribe,
   getUserChannelIds,
 };

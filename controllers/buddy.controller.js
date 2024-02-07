@@ -66,7 +66,7 @@ const requestBuddy = async (ctx) => {
     subject: "Youtube Subsribe @SocialPilot",
     html: `
     <p>You have received an add friend request. Click the links below to accept or reject:</p>
-    <a href='http://app.custom.local/accept/invitation/${urlToken}'>Click here !!</a>
+    <a href='http://app.custom.local/sp/accept/invitation/${urlToken}'>Click here !!</a>
     `,
   };
   // Send the email

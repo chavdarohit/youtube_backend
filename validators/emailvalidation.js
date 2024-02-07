@@ -10,7 +10,7 @@ const validateEmailid = async (ctx, next) => {
     console.log("Email verified in middleware");
     await next();
   } catch (err) {
-    console.log("error in email validation : ", err);
+    console.log("error inerr email validation : ", err);
     ctx.status = 400;
     ctx.body = err.message || "email validation error";
   }

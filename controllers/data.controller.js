@@ -1,17 +1,13 @@
 const {
-  getUserChannelBellIconStatus,
   updateUserChannelBellIconStatus,
   updateUserToPremium,
   subscribeUnsubscribe,
+  updateUser,
 } = require("../queries/userCollection");
-const {
-  getAllChannels,
-  getChannelsBySearch,
-  getAllChannelsFromIds,
-} = require("../queries/suggestedCollections");
+const { getAllChannels } = require("../queries/suggestedCollections");
 
 async function viewProfile(ctx) {
-  const user = await ctx.state.user;
+  const user = ctx.state.user;
   console.log("User id in view profile ", user.firstname);
   if (!user) {
     ctx.status = 404;
@@ -49,11 +45,12 @@ async function suggestedChannels(ctx) {
       condition.channelId = { $nin: userschannel };
     }
     // console.log("Filtered ", channels);
-    let channels = await getAllChannels(condition, skip, limit);
+    let { channels, totalCount } = await getAllChannels(condition, skip, limit);
 
     ctx.body = {
       status: 200,
       channels,
+      totalPages: Math.ceil(totalCount / limit),
     };
   } catch (err) {
     ctx.body = {
@@ -74,7 +71,7 @@ async function subscribeChannel(ctx) {
         channelsSubscribed: { channelId: channelId, isbell: false },
       },
     };
-    const ack = await subscribeUnsubscribe(userId, condition);
+    const ack = await updateUser(userId, condition);
     if (ack.modifiedCount === 0 && ack.matchedCount === 1) {
       ctx.body = {
         status: 204,
@@ -89,7 +86,7 @@ async function subscribeChannel(ctx) {
     };
     console.log("Channel Subscribed");
   } catch (err) {
-    console.error("Error updating data:", err);
+    console.error("Error Subscribing channel:", err);
     ctx.body = {
       status: 401,
       massage: "There is something wrong while subscribe",
@@ -107,13 +104,13 @@ async function unsubscribeChannel(ctx) {
         channelsSubscribed: { channelId: channelId },
       },
     };
-    const ack = await subscribeUnsubscribe(userId, condition);
-    if (ack.modifiedCount === 0) {
+    const ack = await updateUser(userId, condition);
+    if (ack.modifiedCount === 0 && ack.matchedCount === 1) {
       ctx.body = {
         status: 204,
-        massage: "Channel Not found",
+        massage: "Channel Unsubscribed Succesfully",
       };
-      console.log("Channel Not found");
+      console.log("Channel Unsubscribed Succesfully");
       return;
     }
     ctx.body = {
@@ -133,7 +130,11 @@ async function unsubscribeChannel(ctx) {
 async function viewSubscribedChannel(ctx, buddyisPremium, buddyId) {
   try {
     const user = ctx.state.user;
-    const { name, subscribers } = ctx.query;
+    const { _name, _subscribers, _page, _limit } = ctx.query;
+
+    const limit = parseInt(_limit) || 5;
+    const page = parseInt(_page) || 1;
+    const skip = (page - 1) * limit;
 
     //taken the ids of the subscribed array into another array
     const ids = user.channelsSubscribed.map((item) => item.channelId);
@@ -144,16 +145,21 @@ async function viewSubscribedChannel(ctx, buddyisPremium, buddyId) {
     if (!user.isPremium) condition.isPremium = user.isPremium;
 
     let sort = {};
-    if (name) {
-      if (name === "asc") sort.channelName = 1;
-      if (name === "desc") sort.channelName = -1;
+    if (_name) {
+      if (_name === "asc") sort.channelName = 1;
+      if (_name === "desc") sort.channelName = -1;
     }
-    if (subscribers) {
-      if (subscribers === "asc") sort.subscribersCount = 1;
-      if (subscribers === "desc") sort.subscribersCount = -1;
+    if (_subscribers) {
+      if (_subscribers === "asc") sort.subscribersCount = 1;
+      if (_subscribers === "desc") sort.subscribersCount = -1;
     }
 
-    let channels = await getAllChannels(condition, 0, 1000, sort);
+    let { channels, totalCount } = await getAllChannels(
+      condition,
+      skip,
+      limit,
+      sort
+    );
     console.log("view channel subscribed ", sort);
 
     // if (!buddyisPremium || !userisPremium) {
@@ -170,7 +176,11 @@ async function viewSubscribedChannel(ctx, buddyisPremium, buddyId) {
     } else {
       // if (buddyId) return { status: 200, channels };
       console.log("All subscribed channels");
-      ctx.body = { status: 200, channels };
+      ctx.body = {
+        status: 200,
+        channels,
+        totalPages: Math.ceil(totalCount / limit),
+      };
     }
   } catch (err) {
     console.log("Error viewing channel subscribed", err);
@@ -244,7 +254,8 @@ const makeUserPremium = async (ctx) => {
 };
 
 const updateprofile = async (ctx) => {
-  ctx.body = "hii in update profile";
+  let { firstname, lastname, password, email, mobile, gender, bday } =
+    ctx.request.body;
 };
 
 module.exports = {

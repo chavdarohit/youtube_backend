@@ -17,12 +17,13 @@ const signupInsert = async (ctx) => {
     gender: gender,
     bday: birthdate,
     age,
+    image,
   } = ctx.request.body;
 
   try {
     let encryptedpssd = await bcrypt.hash(pssd, 10);
-    let imagePath = ctx.file ? ctx.file.path : null;
-    imagePath = imagePath?.split("\\")[1];
+    // let imagePath = ctx.file ? ctx.file.path : null;
+    // imagePath = imagePath?.split("\\")[1];
 
     const objdata = {
       firstname: fname,
@@ -33,7 +34,7 @@ const signupInsert = async (ctx) => {
       gender,
       birthdate,
       age: age,
-      image: imagePath,
+      image,
       isPremium: false,
       channelsSubscribed: [],
       buddies: [],

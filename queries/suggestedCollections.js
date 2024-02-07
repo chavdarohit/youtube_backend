@@ -17,12 +17,16 @@ const getChannelCountFromId = async (channelId) => {
     .count();
 };
 const getAllChannels = async (condition, skip, limit, sort = {}) => {
-  return await suggestedCollection
+  const channels = await suggestedCollection
     .find(condition)
     .skip(skip)
     .limit(limit)
     .sort(sort)
     .toArray();
+
+  const totalCount = await suggestedCollection.countDocuments(condition);
+
+  return { channels, totalCount };
 };
 
 const getChannelsBySearch = async (_searchTerm) => {
