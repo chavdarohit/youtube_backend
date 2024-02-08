@@ -3,6 +3,7 @@ const {
   updateUserToPremium,
   subscribeUnsubscribe,
   updateUser,
+  getUserFromDbUsingId,
 } = require("../queries/userCollection");
 const { getAllChannels } = require("../queries/suggestedCollections");
 
@@ -254,8 +255,32 @@ const makeUserPremium = async (ctx) => {
 };
 
 const updateprofile = async (ctx) => {
-  let { firstname, lastname, password, email, mobile, gender, bday } =
-    ctx.request.body;
+  let { firstname, lastname, mobile, gender, bday, age } = ctx.request.body;
+  try {
+    let condition = {
+      $set: {
+        firstname,
+        lastname,
+        mobile,
+        gender,
+        birthdate: bday,
+        age,
+      },
+    };
+    console.log("condition ", condition);
+    updateUser(ctx.state.user.userId, condition);
+    const updatedUser = await getUserFromDbUsingId(ctx.state.user.userId);
+    ctx.body = {
+      status: 200,
+      message: "User Profile Updated Succesfully",
+      user: updatedUser,
+    };
+    console.log("User Profile Updated Succesfully");
+  } catch (err) {
+    ctx.status = 204;
+    ctx.body = { message: "User Profile Updated Failed" };
+    console.log("User Profile Uspdated Failed", err);
+  }
 };
 
 module.exports = {

@@ -14,7 +14,6 @@ const verifyToken = require("../middleware/verifyToken");
 const {
   firstNameValidator,
   lastNameValidator,
-  emailValidator,
   genderValidator,
   mobileValidator,
   bdayValidator,
@@ -26,6 +25,7 @@ const {
 } = require("../validators/channel.validator");
 
 const checkChannel = require("../validators/checkChannel");
+const userUpdateValidator = require("../validators/userupdate.valdator");
 
 router.get("/profile", verifyToken, viewProfile);
 router.get("/suggested", verifyToken, suggestedChannels);
@@ -58,10 +58,10 @@ router.post(
   validate([
     firstNameValidator,
     lastNameValidator,
-    emailValidator,
     genderValidator,
     mobileValidator,
     bdayValidator,
+    userUpdateValidator,
   ]),
   updateprofile
 );
