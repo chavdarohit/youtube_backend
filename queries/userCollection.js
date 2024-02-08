@@ -1,5 +1,4 @@
 const { userCollection } = require("../config/dbconfig");
-const { ObjectId } = require("mongodb");
 
 async function signup(obj) {
   try {

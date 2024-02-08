@@ -2,17 +2,13 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const { viewSubscribedChannel } = require("./data.controller");
 const {
-  
   getUserFromDbUsingId,
   getUsersFromDb,
   updateUser,
 } = require("../queries/userCollection");
 
-const {
-  getPremiumAndNonChannelsFromIds,
-  getAllChannelsFromIds,
-  getAllChannels,
-} = require("../queries/suggestedCollections");
+const { getAllChannels } = require("../queries/suggestedCollections");
+const { userCollection } = require("../config/dbconfig");
 require("dotenv").config();
 
 const sendEmail = async (mailOptions) => {
@@ -116,35 +112,51 @@ const searchBuddy = async (ctx) => {
 };
 
 const addBuddy = async (ctx) => {
-  const buddytoken = ctx.request.body.token;
-  const decision = ctx.request.body.decision;
+  const userId = ctx.state.user.userId;
+  const buddyId = ctx.buddy.userId;
+  console.log("user id ", userId, " buddy id ", buddyId);
+  // const buddytoken = ctx.request.body.token;
+  // const decision = ctx.request.body.decision;
 
-  if (decision === "reject") {
-    ctx.status = 201;
-    ctx.body = {
-      error: "Request adding buddy rejected",
-    };
-    return;
-  }
+  // if (decision === "reject") {
+  //   ctx.status = 200;
+  //   ctx.body = {
+  //     message: "Request adding buddy rejected",
+  //   };
+  //   return;
+  // }
   try {
-    const { userId, buddyId } = jwt.verify(buddytoken, process.env.SECRET_KEY);
+    // const { userId, buddyId } = jwt.verify(buddytoken, process.env.SECRET_KEY);
+    // let condition = {};
+    // (condition.$addToSet = { buddies: buddyId }),
+    //   await updateUser(userId, condition);
+    // (condition.$addToSet = { buddies: userId }),
+    //   await updateUser(buddyId, condition);
 
-    // await addBuddyToUser(userId, buddyId);
-    // await addUserToBuddy(buddyId, userId);
-    let condition = {};
-    (condition.$addToSet = { buddies: buddyId }),
-      await updateUser(userId, condition);
-    (condition.$addToSet = { buddies: userId }),
-      await updateUser(buddyId, condition);
+    const operations = [
+      {
+        updateOne: {
+          filter: { userId: userId },
+          update: { $addToSet: { buddies: buddyId } },
+        },
+      },
+      {
+        updateOne: {
+          filter: { userId: buddyId },
+          update: { $addToSet: { buddies: userId } },
+        },
+      },
+    ];
+
+    await userCollection.bulkWrite(operations);
 
     console.log("user id buddy id ", userId, buddyId);
 
-    const buddy = await getUserFromDbUsingId(buddyId);
     console.log("Buddies updated Succesfully");
     ctx.body = {
       status: 200,
       message: "Buddy added succesfully",
-      user: buddy,
+      user: ctx.buddy,
     };
   } catch (err) {
     ctx.status = 401;
@@ -163,7 +175,17 @@ const showBuddy = async (ctx) => {
     let condition = {
       userId: { $in: user.buddies },
     };
-    const buddies = await getUsersFromDb(condition);
+    let projection = {
+      projection: {
+        firstname: 1,
+        lastname: 1,
+        email: 1,
+        userId: 1,
+        image: 1,
+        _id: 0,
+      },
+    };
+    const buddies = await getUsersFromDb(condition, projection);
 
     console.log("Buddies fetched succesfully");
     if (buddies.length === 0) {
