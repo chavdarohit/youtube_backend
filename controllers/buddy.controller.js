@@ -2,17 +2,12 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const { viewSubscribedChannel } = require("./data.controller");
 const {
-  getUserFromDb,
+  
   getUserFromDbUsingId,
-  getBuddyFromDbUsingSearch,
-  getAllBuddies,
-  getBuddyFromIds,
-  addBuddyToUser,
-  addUserToBuddy,
   getUsersFromDb,
   updateUser,
 } = require("../queries/userCollection");
-const { ObjectId } = require("mongodb");
+
 const {
   getPremiumAndNonChannelsFromIds,
   getAllChannelsFromIds,

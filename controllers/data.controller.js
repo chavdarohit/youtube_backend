@@ -1,7 +1,6 @@
 const {
   updateUserChannelBellIconStatus,
   updateUserToPremium,
-  subscribeUnsubscribe,
   updateUser,
   getUserFromDbUsingId,
 } = require("../queries/userCollection");

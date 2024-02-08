@@ -9,7 +9,7 @@ const checkBuddy = async ({ buddyId }, ctx) => {
       message: "Unauthorised Buddy Request",
       field: "buddy",
     };
-    return err;ss
+    return err;
   }
   ctx.buddy = buddyExists;
 

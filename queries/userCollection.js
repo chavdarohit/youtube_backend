@@ -29,124 +29,10 @@ const getUserFromDbUsingEmail = async (email) => {
   return user;
 };
 
-const getBuddyFromDbUsingSearch = async (_searchTerm) => {
-  return await userCollection
-    .find(
-      {
-        $or: [
-          { firstname: new RegExp(_searchTerm, "i") },
-          {
-            lastname: new RegExp(_searchTerm, "i"),
-          },
-        ],
-      },
-      {
-        projection: {
-          firstname: 1,
-          lastname: 1,
-          email: 1,
-          userId: 1,
-          image: 1,
-          _id: 0,
-        },
-      }
-    )
-    .toArray();
-};
-
-const getUserChannelIds = async (uid) => {
-  return userCollection.findOne(
-    { userId: uid },
-    { projection: { channelsSubscribed: 1, _id: 0 } }
-  );
-};
-
-const getAllBuddies = async () => {
-  return await userCollection
-    .find(
-      {},
-      {
-        projection: {
-          firstname: 1,
-          lastname: 1,
-          email: 1,
-          userId: 1,
-          image: 1,
-          _id: 0,
-        },
-      }
-    )
-    .toArray();
-};
-
-const addBuddyToUser = async (uid, bid) => {
-  await userCollection.updateOne(
-    {
-      userId: uid,
-    },
-    {
-      $addToSet: { buddies: bid },
-    }
-  );
-};
-const addUserToBuddy = async (uid, bid) => {
-  await userCollection.updateOne(
-    {
-      userId: uid,
-    },
-    {
-      $addToSet: { buddies: bid },
-    }
-  );
-};
-
-const getBuddyFromIds = async (buddysIds) => {
-  return await userCollection
-    .find({
-      userId: { $in: buddysIds },
-    })
-    .toArray();
-};
-
 const updateUser = async (uid, condition) => {
   return await userCollection.updateOne({ userId: uid }, condition);
 };
 
-const subscribeChannelForUser = async (uid, channelId) => {
-  return await userCollection.updateOne(
-    { userId: uid },
-    {
-      $addToSet: {
-        channelsSubscribed: { id: new ObjectId(channelId), isbell: false },
-      },
-    }
-  );
-};
-
-const unsubscribeChannelForUser = async (uid, channelId) => {
-  return await userCollection.updateOne(
-    {
-      userId: uid,
-    },
-    {
-      $pull: {
-        channelsSubscribed: { id: new ObjectId(channelId) },
-      },
-    }
-  );
-};
-
-const getUserChannelBellIconStatus = async (userId, channelId) => {
-  return userCollection.findOne(
-    {
-      userId: userId,
-      "channelsSubscribed.id": new ObjectId(channelId),
-    },
-    {
-      projection: { "channelsSubscribed.$": 1, _id: 0 },
-    }
-  );
-};
 const updateUserChannelBellIconStatus = async (userId, channelId, update) => {
   return userCollection.updateOne(
     {
@@ -175,17 +61,8 @@ module.exports = {
 
   updateUser,
   updateUserChannelBellIconStatus,
-  getUserChannelBellIconStatus,
-  subscribeChannelForUser,
   getUsersFromDb,
-  unsubscribeChannelForUser,
   getUserFromDbUsingId,
   signup,
-  getBuddyFromIds,
   getUserFromDbUsingEmail,
-  getBuddyFromDbUsingSearch,
-  getAllBuddies,
-  addBuddyToUser,
-  addUserToBuddy,
-  getUserChannelIds,
 };
