@@ -9,11 +9,14 @@ const {
   getBuddyFromIds,
   addBuddyToUser,
   addUserToBuddy,
+  getUsersFromDb,
+  updateUser,
 } = require("../queries/userCollection");
 const { ObjectId } = require("mongodb");
 const {
   getPremiumAndNonChannelsFromIds,
   getAllChannelsFromIds,
+  getAllChannels,
 } = require("../queries/suggestedCollections");
 require("dotenv").config();
 
@@ -41,17 +44,12 @@ const sendEmail = async (mailOptions) => {
 };
 
 const requestBuddy = async (ctx) => {
-  const userId = ctx.user.userId;
-  const buddyId = ctx.request.body.buddyId;
-  const buddyExists = await getUserFromDbUsingId(buddyId);
+  const userId = ctx.state.user.userId;
 
-  if (!buddyExists) {
-    ctx.body = {
-      status: 401,
-      message: "Unauthorised Buddy Request",
-    };
-    return;
-  }
+  //getting buddy from the checkBuddy middleware
+  const buddyExists = ctx.buddy;
+  const buddyId = ctx.buddy.userId;
+
   console.log("Buddy exists ...");
 
   const urlToken = jwt.sign({ userId, buddyId }, process.env.SECRET_KEY, {
@@ -88,16 +86,32 @@ const requestBuddy = async (ctx) => {
 };
 
 const searchBuddy = async (ctx) => {
-  let buddies;
   try {
     const { _searchTerm } = ctx.query;
     console.log("searchterm  ", _searchTerm);
 
+    let condition = {};
+    let projection = {
+      projection: {
+        firstname: 1,
+        lastname: 1,
+        email: 1,
+        userId: 1,
+        image: 1,
+        _id: 0,
+      },
+    };
+
     if (_searchTerm) {
-      buddies = await getBuddyFromDbUsingSearch(_searchTerm);
-    } else {
-      buddies = await getAllBuddies();
+      condition.$or = [
+        { firstname: new RegExp(_searchTerm, "i") },
+        {
+          lastname: new RegExp(_searchTerm, "i"),
+        },
+      ];
     }
+    let buddies = await getUsersFromDb(condition, projection);
+
     console.log("Buddies fetched succesfully");
     ctx.body = { status: 200, buddies };
   } catch (err) {
@@ -119,16 +133,16 @@ const addBuddy = async (ctx) => {
   }
   try {
     const { userId, buddyId } = jwt.verify(buddytoken, process.env.SECRET_KEY);
-    // console.log("buddy token ", buddytoken);
-    // console.log(
-    //   "Buddy token verified userid =",
-    //   userId,
-    //   " Buddy id =",
-    //   buddyId
-    // );
 
-    await addBuddyToUser(userId, buddyId);
-    await addUserToBuddy(buddyId, userId);
+    // await addBuddyToUser(userId, buddyId);
+    // await addUserToBuddy(buddyId, userId);
+    let condition = {};
+    (condition.$addToSet = { buddies: buddyId }),
+      await updateUser(userId, condition);
+    (condition.$addToSet = { buddies: userId }),
+      await updateUser(buddyId, condition);
+
+    console.log("user id buddy id ", userId, buddyId);
 
     const buddy = await getUserFromDbUsingId(buddyId);
     console.log("Buddies updated Succesfully");
@@ -147,11 +161,14 @@ const addBuddy = async (ctx) => {
 
 const showBuddy = async (ctx) => {
   try {
-    const user = await getUserFromDb(ctx);
+    const user = ctx.state.user;
 
     console.log("Show buddy ", user.buddies);
 
-    const buddies = await getBuddyFromIds(user.buddies);
+    let condition = {
+      userId: { $in: user.buddies },
+    };
+    const buddies = await getUsersFromDb(condition);
 
     console.log("Buddies fetched succesfully");
     if (buddies.length === 0) {
@@ -190,53 +207,51 @@ const buddyChannels = async (ctx) => {
 };
 
 const allChannels = async (ctx) => {
+  const { _page, _limit } = ctx.query;
+
+  const limit = parseInt(_limit) || 5;
+  const page = parseInt(_page) || 1;
+  const skip = (page - 1) * limit;
+
   try {
-    // gtting buddy ids from frontend from checkbox
+    // getting buddy ids from frontend from checkbox
     const buddyIdFromCheckbox = ctx.request.body?.buddyId ?? [];
     // console.log("Buddy id from checkbox ", buddyIdFromCheckbox);
     let buddyIds = [];
-    const user = await getUserFromDb(ctx);
+
+    const user = ctx.state.user;
     if (Array.isArray(buddyIdFromCheckbox) && buddyIdFromCheckbox.length > 0) {
       buddyIds = buddyIdFromCheckbox;
     } else {
       //array of all buddy ids if no one is selected from checkbox
       buddyIds = [...user.buddies, user.userId];
     }
-    // console.log("buddyids", buddyIds);
+
+    // console.log(buddyIds);
     let channelIds = [];
 
     //fetching all the channels from the suggested collection with their id
-    // console.log("buddy ids ", buddyIds);
     for (let element of buddyIds) {
-      ctx.user.userId = element;
-      const user = await getUserFromDb(ctx);
+      const user = await getUserFromDbUsingId(element);
       //pushing all the channels of each buddy into single array
-      channelIds.push(
-        ...user.channelsSubscribed.map((item) => item.id.toString())
-      );
+      channelIds.push(...user.channelsSubscribed.map((item) => item.channelId));
     }
     channelIds = [...new Set(channelIds)]; // removing duplicate channels
 
-    //converting again to the Object id for finding from  the database
-    channelIds = channelIds.map((id) => new ObjectId(id));
-
     //if user is not premium it will fetch only normal channels
-    const isUserPremium = user.isPremium;
-
-    console.log("Channels ids ", channelIds);
-    let channels = [];
-    if (!isUserPremium) {
-      channels = await getPremiumAndNonChannelsFromIds(
-        channelIds,
-        isUserPremium
-      );
-    } else {
-      channels = await getAllChannelsFromIds(channelIds);
+    let condition = {};
+    condition.channelId = { $in: channelIds };
+    if (!user.isPremium) {
+      condition.isPremium = user.isPremium;
     }
+
+    let { channels, totalCount } = await getAllChannels(condition, skip, limit);
     ctx.body = {
       status: 200,
       massage: "Channels Fetched Successfull",
       channels,
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
     };
     console.log("Channels Fetched Successfull ", channels.length);
   } catch (err) {

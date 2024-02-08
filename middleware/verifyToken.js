@@ -1,5 +1,8 @@
 const jwt = require("jsonwebtoken");
-const { getUserFromDb } = require("../queries/userCollection");
+const {
+  getUserFromDb,
+  getUserFromDbUsingId,
+} = require("../queries/userCollection");
 
 require("dotenv").config();
 
@@ -14,8 +17,8 @@ async function verifyToken(ctx, next) {
   }
   try {
     const decode = jwt.verify(token, process.env.SECRET_KEY);
-    ctx.user = decode;
-    const user = await getUserFromDb(ctx);
+    // ctx.user = decode;
+    const user = await getUserFromDbUsingId(decode.userId);
     ctx.state.user = user;
     console.log(
       "Token verified succesfully for ",

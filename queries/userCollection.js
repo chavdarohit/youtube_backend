@@ -11,11 +11,9 @@ async function signup(obj) {
   }
 }
 
-const getUserFromDb = async (ctx) => {
-  const user = await userCollection.findOne({
-    userId: ctx.user.userId,
-  });
-  return user;
+const getUsersFromDb = async (condition, projection) => {
+  const users = await userCollection.find(condition, projection).toArray();
+  return users;
 };
 
 const getUserFromDbUsingId = async (uid) => {
@@ -179,7 +177,7 @@ module.exports = {
   updateUserChannelBellIconStatus,
   getUserChannelBellIconStatus,
   subscribeChannelForUser,
-  getUserFromDb,
+  getUsersFromDb,
   unsubscribeChannelForUser,
   getUserFromDbUsingId,
   signup,

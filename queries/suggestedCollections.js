@@ -1,13 +1,13 @@
 const { suggestedCollection } = require("../config/dbconfig");
 
-const getPremiumAndNonChannelsFromIds = async (channelIds, isUserPremium) => {
-  return suggestedCollection
-    .find({
-      _id: { $in: channelIds },
-      isPremium: isUserPremium,
-    })
-    .toArray();
-};
+// const getPremiumAndNonChannelsFromIds = async (channelIds, isUserPremium) => {
+//   return suggestedCollection
+//     .find({
+//       _id: { $in: channelIds },
+//       isPremium: isUserPremium,
+//     })
+//     .toArray();
+// };
 
 const getChannelCountFromId = async (channelId) => {
   return suggestedCollection
@@ -38,7 +38,6 @@ const getChannelsBySearch = async (_searchTerm) => {
 };
 
 module.exports = {
-  getPremiumAndNonChannelsFromIds,
   getChannelCountFromId,
   getChannelsBySearch,
   getAllChannels,

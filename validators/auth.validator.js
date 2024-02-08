@@ -6,15 +6,21 @@ let passwordPattern =
 let emailpattern = /^[a-zA-Z0-9]+@[a-zA-Z]+\.[a-z]{2,4}$/;
 
 let mobilePattern = /^\d{10}$/;
-const firstNameValidator = ({ firstname }) => {
+const firstNameValidator = ({ firstname },ctx) => {
   let err = null;
 
   if (!firstname) {
     err = { message: "Enter first name", field: "firstname" };
-
     return err;
   }
+  if (typeof firstname !== "string") {
+    err = { message: "Enter Valid Firstname", field: "firstname" };
+    return err;
+  }
+
   firstname = firstname.trim();
+  ctx.request.body.firstname = firstname;
+
   if (firstname.length < 3) {
     err = { message: "Minimum 3 characters required", field: "firstname" };
     return err;
@@ -35,14 +41,21 @@ const firstNameValidator = ({ firstname }) => {
   return err;
 };
 
-const lastNameValidator = ({ lastname }) => {
+const lastNameValidator = ({ lastname },ctx) => {
   let err = null;
 
   if (!lastname) {
     err = { message: "Enter last name", field: "lastname" };
     return err;
   }
+  if (typeof lastname !== "string") {
+    err = { message: "Enter Valid lastname", field: "lastname" };
+    return err;
+  }
+
   lastname = lastname.trim();
+  ctx.request.body.lastname = lastname;
+
   if (lastname.length < 3) {
     err = { message: "Minimum 3 characters required", field: "lastname" };
     return err;
@@ -63,13 +76,15 @@ const lastNameValidator = ({ lastname }) => {
   return err;
 };
 
-const passwordValidator = ({ password }) => {
+const passwordValidator = ({ password },ctx) => {
   let err = null;
 
   if (!password) {
     err = { message: "Enter password ", field: "password" };
     return err;
   }
+  password = password.trim();
+  ctx.request.body.password = password;
 
   if (!passwordPattern.test(password)) {
     err = {
@@ -143,7 +158,7 @@ const genderValidator = ({ gender }) => {
 
   return err;
 };
-const mobileValidator = ({ mobile }) => {
+const mobileValidator = ({ mobile },ctx) => {
   let err = null;
 
   if (!mobile) {
@@ -153,6 +168,13 @@ const mobileValidator = ({ mobile }) => {
     };
     return err;
   }
+  if (typeof mobile !== "string") {
+    err = { message: "Enter Valid mobile", field: "mobile" };
+    return err;
+  }
+  mobile = mobile.trim();
+  ctx.request.body.mobile = mobile;
+
 
   if (!mobilePattern.test(mobile)) {
     err = {
@@ -164,7 +186,7 @@ const mobileValidator = ({ mobile }) => {
 
   return err;
 };
-const bdayValidator = ({ bday },ctx) => {
+const bdayValidator = ({ bday }, ctx) => {
   let err = null;
   let age;
   if (!bday) {
@@ -199,12 +221,10 @@ const bdayValidator = ({ bday },ctx) => {
   return err;
 };
 
-const emailAlreadyExistsValidator = async({ email },ctx) => {
+const emailAlreadyExistsValidator = async ({ email }, ctx) => {
   let err = null;
   email = email.toLowerCase();
 
-
-  
   const users = await getUserFromDbUsingEmail(email);
   if (users) {
     err = { message: "User already Exists", field: "email" };

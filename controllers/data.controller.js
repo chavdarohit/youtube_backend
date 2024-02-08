@@ -163,19 +163,10 @@ async function viewSubscribedChannel(ctx, buddyisPremium, buddyId) {
     );
     console.log("view channel subscribed ", sort);
 
-    // if (!buddyisPremium || !userisPremium) {
-    //   channels = channels.filter((item) => item.isPremium === false);
-    //   console.log("buddy is not premium");
-    // }
-
     if (channels.length === 0) {
-      //if buddy id is there then return to buddy controller for response
-      //otherwise send response from here
-      // if (buddyId) return { status: 204, channels };
       console.log("no channels found");
       ctx.body = { status: 204, channels };
     } else {
-      // if (buddyId) return { status: 200, channels };
       console.log("All subscribed channels");
       ctx.body = {
         status: 200,
@@ -236,7 +227,8 @@ const pressBellIcon = async (ctx) => {
 
 const makeUserPremium = async (ctx) => {
   try {
-    const userId = ctx.user.userId;
+    // console.log(ctx.user);
+    const userId = ctx.state.user.userId;
     const ack = await updateUserToPremium(userId); // console.log("ack ", ack);
     if (ack) {
       console.log("User account Upgraded");
@@ -267,8 +259,8 @@ const updateprofile = async (ctx) => {
         age,
       },
     };
-    console.log("condition ", condition);
-    updateUser(ctx.state.user.userId, condition);
+    // console.log("condition ", condition);
+    await updateUser(ctx.state.user.userId, condition);
     const updatedUser = await getUserFromDbUsingId(ctx.state.user.userId);
     ctx.body = {
       status: 200,
