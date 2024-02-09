@@ -205,8 +205,6 @@ const showBuddy = async (ctx) => {
 //     // -> passing buddyid just to make decision that... if buddy id is not UNDEFINED then response should be returned otherwise from that function
 //     // it will go to the client
 
-    
-
 const allChannels = async (ctx) => {
   const { _page, _limit } = ctx.query;
 
@@ -228,42 +226,72 @@ const allChannels = async (ctx) => {
       buddyIds = [...user.buddies, user.userId];
     }
 
-    // console.log(buddyIds);
-    let channelIds = [];
-
+    console.log(user.isPremium, "user is premium");
     const result = await userCollection
       .aggregate([
-        { $match: { userId: { $in: buddyIds } } },
         {
-          $unwind: "$channelsSubscribed",
+          $match: {
+            userId: {
+              $in: buddyIds,
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "suggested",
+            localField: "channelsSubscribed.channelId",
+            foreignField: "channelId",
+            as: "suggestedChannels",
+          },
+        },
+        {
+          $unwind: "$suggestedChannels",
         },
         {
           $group: {
             _id: null,
-            channels: { $addToSet: "$channelsSubscribed.channelId" },
+            channels: {
+              $addToSet: {
+                $cond: {
+                  if: { $eq: [user.isPremium, true] },
+                  then: "$suggestedChannels",
+                  else: {
+                    $cond: {
+                      if: { $eq: [user.isPremium, false] },
+                      then: {
+                        $cond: {
+                          if: { $eq: ["$suggestedChannels.isPremium", false] },
+                          then: "$suggestedChannels",
+                          else: null,
+                        },
+                      },
+                      else: null,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            finalChannels: {
+              $slice: ["$channels", 0, 100],
+            },
           },
         },
       ])
       .toArray();
-      if (result.length > 0) {
-        channelIds = result[0].channels;
-      }
- 
-    let condition = {};
-    condition.channelId = { $in: channelIds };
-    if (!user.isPremium) {
-      condition.isPremium = user.isPremium;
-    }
 
-    let { channels, totalCount } = await getAllChannels(condition, skip, limit);
+    console.log("resut ", result[0].finalChannels.length);
     ctx.body = {
       status: 200,
       massage: "Channels Fetched Successfull",
-      channels,
-      totalCount,
-      totalPages: Math.ceil(totalCount / limit),
+      channels: result[0].finalChannels,
+      totalCount: result[0].finalChannels.length - 1,
+      totalPages: Math.ceil(result[0].finalChannels.length / limit),
     };
-    console.log("Channels Fetched Successfull ", channels.length);
   } catch (err) {
     ctx.status = 500;
     ctx.body = "something went wrong while fetching all channels";
