@@ -115,24 +115,8 @@ const addBuddy = async (ctx) => {
   const userId = ctx.state.user.userId;
   const buddyId = ctx.buddy.userId;
   console.log("user id ", userId, " buddy id ", buddyId);
-  // const buddytoken = ctx.request.body.token;
-  // const decision = ctx.request.body.decision;
 
-  // if (decision === "reject") {
-  //   ctx.status = 200;
-  //   ctx.body = {
-  //     message: "Request adding buddy rejected",
-  //   };
-  //   return;
-  // }
   try {
-    // const { userId, buddyId } = jwt.verify(buddytoken, process.env.SECRET_KEY);
-    // let condition = {};
-    // (condition.$addToSet = { buddies: buddyId }),
-    //   await updateUser(userId, condition);
-    // (condition.$addToSet = { buddies: userId }),
-    //   await updateUser(buddyId, condition);
-
     const operations = [
       {
         updateOne: {
@@ -200,28 +184,28 @@ const showBuddy = async (ctx) => {
   }
 };
 
-const buddyChannels = async (ctx) => {
-  try {
-    const user = await getUserFromDb(ctx);
+// const buddyChannels = async (ctx) => {
+//   try {
+//     const user = await getUserFromDb(ctx);
 
-    // console.log("in buddies channel ", userId, user);
-    const isPremium = user.isPremium;
-    const buddyId = ctx.params.id;
-    ctx.user.userId = buddyId;
-    console.log("In buddies channel buddyid", buddyId, ctx.user.userId);
+//     // console.log("in buddies channel ", userId, user);
+//     const isPremium = user.isPremium;
+//     const buddyId = ctx.params.id;
+//     ctx.user.userId = buddyId;
+//     console.log("In buddies channel buddyid", buddyId, ctx.user.userId);
 
-    // ->called viewSubscribed function because functionality is already made
-    // -> passing the ispremium for saying that current login person is premium or not then show channels as per that
-    // -> passing buddyid just to make decision that... if buddy id is not UNDEFINED then response should be returned otherwise from that function
-    // it will go to the client
+//  const result = await viewSubscribedChannel(ctx, isPremium, buddyId);
+//     ctx.body = result;
+//   } catch (err) {
+//     (ctx.status = 201), (ctx.body = "error in showing buddies channel");
+//     console.log("buddy channels ", err);
+//   }
+// };   // ->called viewSubscribed function because functionality is already made
+//     // -> passing the ispremium for saying that current login person is premium or not then show channels as per that
+//     // -> passing buddyid just to make decision that... if buddy id is not UNDEFINED then response should be returned otherwise from that function
+//     // it will go to the client
 
-    const result = await viewSubscribedChannel(ctx, isPremium, buddyId);
-    ctx.body = result;
-  } catch (err) {
-    (ctx.status = 201), (ctx.body = "error in showing buddies channel");
-    console.log("buddy channels ", err);
-  }
-};
+    
 
 const allChannels = async (ctx) => {
   const { _page, _limit } = ctx.query;
@@ -247,15 +231,24 @@ const allChannels = async (ctx) => {
     // console.log(buddyIds);
     let channelIds = [];
 
-    //fetching all the channels from the suggested collection with their id
-    for (let element of buddyIds) {
-      const user = await getUserFromDbUsingId(element);
-      //pushing all the channels of each buddy into single array
-      channelIds.push(...user.channelsSubscribed.map((item) => item.channelId));
-    }
-    channelIds = [...new Set(channelIds)]; // removing duplicate channels
-
-    //if user is not premium it will fetch only normal channels
+    const result = await userCollection
+      .aggregate([
+        { $match: { userId: { $in: buddyIds } } },
+        {
+          $unwind: "$channelsSubscribed",
+        },
+        {
+          $group: {
+            _id: null,
+            channels: { $addToSet: "$channelsSubscribed.channelId" },
+          },
+        },
+      ])
+      .toArray();
+      if (result.length > 0) {
+        channelIds = result[0].channels;
+      }
+ 
     let condition = {};
     condition.channelId = { $in: channelIds };
     if (!user.isPremium) {
@@ -283,6 +276,5 @@ module.exports = {
   searchBuddy,
   addBuddy,
   showBuddy,
-  buddyChannels,
   allChannels,
 };
