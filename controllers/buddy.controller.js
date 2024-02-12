@@ -184,27 +184,6 @@ const showBuddy = async (ctx) => {
   }
 };
 
-// const buddyChannels = async (ctx) => {
-//   try {
-//     const user = await getUserFromDb(ctx);
-
-//     // console.log("in buddies channel ", userId, user);
-//     const isPremium = user.isPremium;
-//     const buddyId = ctx.params.id;
-//     ctx.user.userId = buddyId;
-//     console.log("In buddies channel buddyid", buddyId, ctx.user.userId);
-
-//  const result = await viewSubscribedChannel(ctx, isPremium, buddyId);
-//     ctx.body = result;
-//   } catch (err) {
-//     (ctx.status = 201), (ctx.body = "error in showing buddies channel");
-//     console.log("buddy channels ", err);
-//   }
-// };   // ->called viewSubscribed function because functionality is already made
-//     // -> passing the ispremium for saying that current login person is premium or not then show channels as per that
-//     // -> passing buddyid just to make decision that... if buddy id is not UNDEFINED then response should be returned otherwise from that function
-//     // it will go to the client
-
 const allChannels = async (ctx) => {
   const { _page, _limit } = ctx.query;
 
@@ -290,7 +269,6 @@ const allChannels = async (ctx) => {
         {
           $project: {
             _id: 0,
-            count: 1,
             channels: {
               $filter: {
                 input: "$channels",
@@ -316,18 +294,27 @@ const allChannels = async (ctx) => {
                 },
               },
             },
+            totalCount: { $size: "$channels" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            channels: { $slice: ["$channels", skip, limit] },
+            totalCount: 1,
           },
         },
       ])
       .toArray();
 
-    console.log("resut ", result);
+    // console.log("resut ", result);
     ctx.body = {
       status: 200,
+      // result: result,
       channels: result[0].channels,
-      totalCount: result[0].channels.length,
-      totalPages: Math.ceil(result[0].channels.length / limit),
-      massage: "Channels Fetched Successfull",
+      totalCount: result[0].totalCount,
+      totalPages: Math.ceil(result[0].totalCount / limit),
+      // massage: "Channels Fetched Successfull",
       // channels: result[0].finalChannels,
       // totalCount: result[0].finalChannels.length - 1,
       // totalPages: Math.ceil(result[0].finalChannels.length / limit),
