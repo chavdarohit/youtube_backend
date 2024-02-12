@@ -247,25 +247,70 @@ const allChannels = async (ctx) => {
         {
           $unwind: "$suggestedChannels",
         },
+        // {
+        //   $group: {
+        //     _id: null,
+        //     channels: {
+        //       $addToSet: {
+        //         $cond: {
+        //           if: { $eq: [user.isPremium, true] },
+        //           then: "$suggestedChannels",
+        //           else: {
+        //             $cond: {
+        //               if: { $eq: [user.isPremium, false] },
+        //               then: {
+        //                 $cond: {
+        //                   if: { $eq: ["$suggestedChannels.isPremium", false] },
+        //                   then: "$suggestedChannels",
+        //                   else: null,
+        //                 },
+        //               },
+        //               else: null,
+        //             },
+        //           },
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     finalChannels: {
+        //       $slice: ["$channels", 0, 100],
+        //     },
+        //   },
+        // },
         {
           $group: {
             _id: null,
+            channels: { $addToSet: "$suggestedChannels" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            count: 1,
             channels: {
-              $addToSet: {
-                $cond: {
-                  if: { $eq: [user.isPremium, true] },
-                  then: "$suggestedChannels",
-                  else: {
-                    $cond: {
-                      if: { $eq: [user.isPremium, false] },
-                      then: {
-                        $cond: {
-                          if: { $eq: ["$suggestedChannels.isPremium", false] },
-                          then: "$suggestedChannels",
-                          else: null,
+              $filter: {
+                input: "$channels",
+                as: "channel",
+                cond: {
+                  $cond: {
+                    if: { $eq: [user.isPremium, true] },
+                    then: "$$channel",
+                    else: {
+                      $cond: {
+                        if: { $eq: [user.isPremium, false] },
+                        then: {
+                          $cond: {
+                            if: { $eq: ["$$channel.isPremium", false] },
+                            then: "$$channel",
+                            else: null,
+                          },
                         },
+                        else: null,
                       },
-                      else: null,
                     },
                   },
                 },
@@ -273,24 +318,19 @@ const allChannels = async (ctx) => {
             },
           },
         },
-        {
-          $project: {
-            _id: 0,
-            finalChannels: {
-              $slice: ["$channels", 0, 100],
-            },
-          },
-        },
       ])
       .toArray();
 
-    console.log("resut ", result[0].finalChannels.length);
+    console.log("resut ", result);
     ctx.body = {
       status: 200,
+      channels: result[0].channels,
+      totalCount: result[0].channels.length,
+      totalPages: Math.ceil(result[0].channels.length / limit),
       massage: "Channels Fetched Successfull",
-      channels: result[0].finalChannels,
-      totalCount: result[0].finalChannels.length - 1,
-      totalPages: Math.ceil(result[0].finalChannels.length / limit),
+      // channels: result[0].finalChannels,
+      // totalCount: result[0].finalChannels.length - 1,
+      // totalPages: Math.ceil(result[0].finalChannels.length / limit),
     };
   } catch (err) {
     ctx.status = 500;
