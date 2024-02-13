@@ -8,6 +8,7 @@ const {
   makeUserPremium,
   unsubscribeChannel,
   updateprofile,
+  subscribeCount,
 } = require("../controllers/data.controller");
 const validate = require("../middleware/validate.middleware");
 const verifyToken = require("../middleware/verifyToken");
@@ -65,5 +66,7 @@ router.post(
   ]),
   updateprofile
 );
+
+router.post("/count/:id", verifyToken, subscribeCount);
 
 module.exports = router.routes();

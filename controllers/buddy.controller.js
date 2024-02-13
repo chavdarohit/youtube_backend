@@ -307,7 +307,8 @@ const allChannels = async (ctx) => {
       ])
       .toArray();
 
-    // console.log("resut ", result);
+    // console.log("resut ", result[0]._id.channels);
+    console.log("resut ", result);
     ctx.body = {
       status: 200,
       // result: result,
@@ -326,8 +327,37 @@ const allChannels = async (ctx) => {
   }
 };
 
+const mutualBuddy = async (ctx) => {
+  const channelId = ctx.params.id;
+  const user = ctx.state.user;
+
+  const buddy = await userCollection
+    .aggregate([
+      {
+        $match: { userId: user.userId },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "buddies",
+          foreignField: "userId",
+          as: "buddy",
+        },
+      },
+      {
+        $unwind: "$buddy",
+      },
+      {
+        $match : { "buddy.channelsSubscribed.channelId": channelId }
+      }
+    ])
+    .toArray();
+  console.log(buddy);
+};
+
 module.exports = {
   requestBuddy,
+  mutualBuddy,
   searchBuddy,
   addBuddy,
   showBuddy,

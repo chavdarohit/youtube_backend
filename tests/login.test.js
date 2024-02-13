@@ -12,6 +12,7 @@ beforeEach(() => {
     body: null,
   };
 });
+
 describe("login AUthentication API", () => {
   it("should respond with 401 Unauthorized and 'Invalid credentials' for invalid email", async () => {
     const res = await request.post("/api/auth/login").send(ctx);

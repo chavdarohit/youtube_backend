@@ -4,6 +4,7 @@ const {
   addBuddy,
   showBuddy,
   allChannels,
+  mutualBuddy,
 } = require("../controllers/buddy.controller");
 const validate = require("../middleware/validate.middleware");
 const verifyToken = require("../middleware/verifyToken");
@@ -21,5 +22,6 @@ router.get("/showbuddy", verifyToken, showBuddy);
 //depricated
 // router.get("/buddychannels/:id", verifyToken, buddyChannels);
 router.post("/allchannels", verifyToken, allChannels);
+router.post("/mutualbuddy/:id",verifyToken,mutualBuddy);
 
 module.exports = router.routes();

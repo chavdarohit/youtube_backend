@@ -5,6 +5,7 @@ const {
   getUserFromDbUsingId,
 } = require("../queries/userCollection");
 const { getAllChannels } = require("../queries/suggestedCollections");
+const { userCollection } = require("../config/dbconfig");
 
 async function viewProfile(ctx) {
   const user = ctx.state.user;
@@ -127,7 +128,7 @@ async function unsubscribeChannel(ctx) {
   }
 }
 
-async function viewSubscribedChannel(ctx, buddyisPremium, buddyId) {
+async function viewSubscribedChannel(ctx) {
   try {
     const user = ctx.state.user;
     const { _name, _subscribers, _page, _limit } = ctx.query;
@@ -274,7 +275,52 @@ const updateprofile = async (ctx) => {
   }
 };
 
+const subscribeCount = async (ctx) => {
+  try {
+    const channelId = ctx.params.id;
+    const users = await userCollection
+      .aggregate([
+        {
+          $unwind: "$channelsSubscribed",
+        },
+        {
+          $match: { "channelsSubscribed.channelId": channelId },
+        },
+        {
+          $group: {
+            _id: null,
+            totalcount: { $sum: 1 },
+            isbellTrue: {
+              $sum: {
+                $cond: {
+                  if: { $eq: ["$channelsSubscribed.isbell", true] },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
+            isbellFalse: {
+              $sum: {
+                $cond: {
+                  if: { $eq: ["$channelsSubscribed.isbell", false] },
+                  then: 1,
+                  else: 0,
+                },
+              },
+            },
+          },
+        },
+      ])
+      .toArray();
+    console.log(users);
+  } catch (err) {
+    ctx.body = err;
+    console.log(err);
+  }
+};
+
 module.exports = {
+  subscribeCount,
   updateprofile,
   viewProfile,
   suggestedChannels,

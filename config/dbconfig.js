@@ -3,6 +3,7 @@ require("dotenv").config();
 const client = new MongoClient(process.env.MONGO_URI);
 const database = client.db("youtube-project");
 const userCollection = database.collection("users");
+const buddyCollection = database.collection("buddy");
 const suggestedCollection = database.collection("suggested");
 async function connectToDatabase() {
   try {
@@ -17,4 +18,5 @@ module.exports = {
   connectToDatabase,
   userCollection,
   suggestedCollection,
+  buddyCollection
 };
