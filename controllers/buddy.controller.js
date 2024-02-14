@@ -5,6 +5,7 @@ const {
   getUserFromDbUsingId,
   getUsersFromDb,
   updateUser,
+  getDataFromAggregation,
 } = require("../queries/userCollection");
 
 const { getAllChannels } = require("../queries/suggestedCollections");
@@ -330,9 +331,33 @@ const allChannels = async (ctx) => {
 const mutualBuddy = async (ctx) => {
   const channelId = ctx.params.id;
   const user = ctx.state.user;
+  let decision = ctx.query.decision;
 
-  const buddy = await userCollection
-    .aggregate([
+  try {
+    let decisionMatchStage;
+
+    if (decision === "true") decision = true;
+    else if (decision === "false") decision = false;
+
+    if (decision === true || decision === false) {
+      decisionMatchStage = {
+        $match: {
+          "buddy.channelsSubscribed": {
+            $elemMatch: {
+              channelId: channelId,
+              isbell: decision,
+            },
+          },
+        },
+      };
+    } else {
+      decisionMatchStage = {
+        $match: {
+          "buddy.channelsSubscribed.channelId": channelId,
+        },
+      };
+    }
+    const pipeline = [
       {
         $match: { userId: user.userId },
       },
@@ -347,12 +372,24 @@ const mutualBuddy = async (ctx) => {
       {
         $unwind: "$buddy",
       },
+      decisionMatchStage,
       {
-        $match : { "buddy.channelsSubscribed.channelId": channelId }
-      }
-    ])
-    .toArray();
-  console.log(buddy);
+        $project: {
+          _id: 0,
+          fullname: { $concat: ["$buddy.firstname", " ", "$buddy.lastname"] },
+        },
+      },
+    ];
+
+    const buddy = await getDataFromAggregation(pipeline);
+    console.log(buddy);
+    ctx.body = {
+      status: 200,
+      buddy: buddy,
+    };
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 module.exports = {

@@ -55,7 +55,13 @@ const updateUserToPremium = async (userId) => {
     }
   );
 };
+
+const getDataFromAggregation = async (pipeline) => {
+  return userCollection.aggregate(pipeline).toArray();
+};
+
 module.exports = {
+  getDataFromAggregation,
   updateUserToPremium,
 
   updateUser,

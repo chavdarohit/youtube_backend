@@ -313,6 +313,12 @@ const subscribeCount = async (ctx) => {
       ])
       .toArray();
     console.log(users);
+    ctx.body = {
+      status: 200,
+      totalcount: users[0].totalcount,
+      totalisBellOn: users[0].isbellTrue,
+      totalisBellOff: users[0].isbellFalse,
+    };
   } catch (err) {
     ctx.body = err;
     console.log(err);

@@ -69,12 +69,15 @@ const loginUser = async (ctx) => {
   if (!userExists) {
     ctx.status = 401;
     ctx.body = "Invalid credentials";
+    console.log("user not exists");
     return;
   }
   const passwordMatch = await bcrypt.compare(password, userExists.password);
+
   if (!passwordMatch) {
     ctx.status = 401;
     ctx.body = "Invalid credentials";
+    console.log("passssword not match");
     console.log("Invalid credentials");
     return;
   }

@@ -19,6 +19,10 @@ app.use(serve("./public"));
 app.use(publicRouter.routes());
 app.use(privateRouter.routes());
 
+publicRouter.post("/", (ctx) => {
+  ctx.body = "Hello World";
+});
+
 app.on("error", (err, ctx) => {
   console.error("Unhandled error occurred:", err);
   // You can cust omize the error response here
@@ -30,8 +34,16 @@ app.listen(80, () => {
   console.log(`Server is running on port 80...🚀`);
 });
 
-(async () => {
-  await db.connectToDatabase();
-})();
+const connectToMongodb = async () => {
+  try {
+    await db.connectToDatabase();
+  } catch (err) {
+    console.error("Error connecting to MongoDB:", err);
+  }
+};
 
+if (process.env.NODE_ENV !== "test") {
+  // Connect to MongoDB only when not in test environment
+  connectToMongodb();
+}
 module.exports = app;
