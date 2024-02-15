@@ -1,50 +1,69 @@
 const supertest = require("supertest");
 const app = require("../app");
-
-const request = supertest.agent(app.listen());
-
-// describe("PublicRouter", () => {
-//   it('should respond with "Hello World" for post /', async () => {
-//     const response = await request.post("/");
-//     expect(response.status).toBe(200);
-//     expect(response.text).toBe("Hello World");
-//   });
-// });
+const userCollection = require("../queries/userCollection");
+const request = supertest(app.listen());
 
 describe("login endpoint", () => {
-  let validUser;
+  const _getuserFromDbUsingEmail = userCollection.getUserFromDbUsingEmail;
+
+  let validUser = {
+    email: "test@example.com",
+    // password: "securePassword",
+    password: "$2a$10$9YbP8YRtKcwqt73cBcGW8OIcH1N7jKJdTSr8fbL4/K/S6soiqPehK",
+  };
 
   beforeEach(() => {
-    validUser = {
-      email: "test@example.com",
-      password: "securePassword",
-    };
+    console.log("inside before each");
+    userCollection.getUserFromDbUsingEmail = jest.fn((requestEmail) => {
+      console.log("calling mock function");
+      if (requestEmail === validUser.email) {
+        return validUser;
+      } else {
+        return null;
+      }
+    });
   });
 
-  jest.mock("../queries/userCollection", () => ({
-    getUserFromDbUsingEmail: jest.fn().mockResolvedValue(validUser),
-  }));
+  // afterEach(() => {
+  //   userCollection.getUserFromDbUsingEmail = _getuserFromDbUsingEmail;
+  // });
 
-  jest.mock("bcrypt", () => ({
-    compare: jest.fn().mockResolvedValue(true),
-  }));
-  
-  it("should be login", async () => {
-    const response = await request.post("/api/auth/login").send(validUser);
-    expect(response.status).toBe(200);
-    expect(response.body.message).toBe("Login succesfull");
-    expect(response.body.token).toBeDefined();
+  describe("login potentials", () => {
+    it.only("Login should be succesfull with proper data", async () => {
+      userCollection.getUserFromDbUsingEmail = jest.spyOn(
+        userCollection,
+        "getUserFromDbUsingEmail"
+      );
 
-    expect(response.body.user).toEqual(validUser);
-  });
+      userCollection.getUserFromDbUsingEmail.mockImplementation(
+        (requestEmail) => "mock"
+      );
+      const response = await request.post("/api/auth/login").send({
+        email: "test@example.com",
+        password: "securePassword",
+      });
+      expect(response.body.user).toEqual(validUser);
+      expect(response.status).toBe(200);
+      expect(response.body.message).toBe("Login succesfull");
+      expect(response.body.token).toBeDefined();
+    });
 
-  it("Login failed with no proper email", async () => {
-    jest.mock("../queries/userCollection", () => ({
-      getUserFromDbUsingEmail: jest.fn().mockResolvedValue(null),
-    }));
-
-    const response = await request.post("/api/auth/login").send(validUser);
-    expect(response.status).toBe(401);
-    expect(response.text).toBe("Invalid credentials");
+    it("Login failed with no proper email", async () => {
+      const response = await request.post("/api/auth/login").send({
+        email: "flamingo@mono.com",
+        password: "securePassword",
+      });
+      expect(response.status).toBe(401);
+      expect(response.text).toBe("Invalid credentials");
+      expect(response.body.user).toEqual(null);
+    });
+    it("Login failed with no proper Password", async () => {
+      const response = await request.post("/api/auth/login").send({
+        email: "test@example.com",
+        password: "falmi1234",
+      });
+      expect(response.status).toBe(401);
+      expect(response.text).toBe("Invalid credentials");
+    });
   });
 });

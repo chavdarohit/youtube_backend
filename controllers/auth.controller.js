@@ -1,9 +1,10 @@
 const bcrypt = require("bcrypt");
 const makeJwtToken = require("../utils/MakeAuthToken");
 const { v4: uuidv4 } = require("uuid");
+const { userCollection } = require("../config/dbconfig");
 const {
   signup,
-  getUserFromDbUsingId,
+
   getUserFromDbUsingEmail,
 } = require("../queries/userCollection");
 
@@ -42,7 +43,7 @@ const signupInsert = async (ctx) => {
     };
     console.log("Storging data = ", objdata);
     const ack = await signup(objdata);
-    const user = await getUserFromDbUsingId(objdata.userId);
+    const user = await userCollection.getUserFromDbUsingId(objdata.userId);
     // const user = await userCollection.findOne({ userId: objdata.userId });
     const userId = objdata.userId;
     console.log("User retrieved ", user, userId);

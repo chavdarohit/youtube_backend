@@ -1,14 +1,10 @@
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
-const { viewSubscribedChannel } = require("./data.controller");
 const {
-  getUserFromDbUsingId,
   getUsersFromDb,
-  updateUser,
   getDataFromAggregation,
 } = require("../queries/userCollection");
 
-const { getAllChannels } = require("../queries/suggestedCollections");
 const { userCollection } = require("../config/dbconfig");
 require("dotenv").config();
 
@@ -331,56 +327,32 @@ const allChannels = async (ctx) => {
 const mutualBuddy = async (ctx) => {
   const channelId = ctx.params.id;
   const user = ctx.state.user;
-  let decision = ctx.query.decision;
+  const { isbell } = ctx.query;
 
   try {
-    let decisionMatchStage;
-
-    if (decision === "true") decision = true;
-    else if (decision === "false") decision = false;
-
-    if (decision === true || decision === false) {
-      decisionMatchStage = {
+    let matchStage;
+    if (isbell === "true" || isbell === "false") {
+      matchStage = {
         $match: {
-          "buddy.channelsSubscribed": {
+          channelsSubscribed: {
             $elemMatch: {
               channelId: channelId,
-              isbell: decision,
+              isbell: isbell === "true" ? true : false,
             },
           },
         },
       };
     } else {
-      decisionMatchStage = {
-        $match: {
-          "buddy.channelsSubscribed.channelId": channelId,
-        },
+      matchStage = {
+        $match: { "channelsSubscribed.channelId": channelId },
       };
     }
     const pipeline = [
       {
-        $match: { userId: user.userId },
+        $match: { userId: { $in: user.buddies } },
       },
-      {
-        $lookup: {
-          from: "users",
-          localField: "buddies",
-          foreignField: "userId",
-          as: "buddy",
-        },
-      },
-      {
-        $unwind: "$buddy",
-      },
-      decisionMatchStage,
-      {
-        $project: {
-          _id: 0,
-          fullname: { $concat: ["$buddy.firstname", " ", "$buddy.lastname"] },
-        },
-      },
+      matchStage,
     ];
-
     const buddy = await getDataFromAggregation(pipeline);
     console.log(buddy);
     ctx.body = {

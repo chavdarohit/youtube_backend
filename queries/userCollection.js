@@ -22,6 +22,7 @@ const getUserFromDbUsingId = async (uid) => {
   return user;
 };
 const getUserFromDbUsingEmail = async (email) => {
+  console.log("calling original function");
   const user = await userCollection.findOne({
     email,
   });

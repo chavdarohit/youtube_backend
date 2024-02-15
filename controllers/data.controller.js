@@ -3,6 +3,7 @@ const {
   updateUserToPremium,
   updateUser,
   getUserFromDbUsingId,
+  getDataFromAggregation,
 } = require("../queries/userCollection");
 const { getAllChannels } = require("../queries/suggestedCollections");
 const { userCollection } = require("../config/dbconfig");
@@ -277,45 +278,35 @@ const updateprofile = async (ctx) => {
 
 const subscribeCount = async (ctx) => {
   try {
+    const { isbell } = ctx.query;
     const channelId = ctx.params.id;
-    const users = await userCollection
-      .aggregate([
-        {
-          $unwind: "$channelsSubscribed",
-        },
-        {
-          $match: { "channelsSubscribed.channelId": channelId },
-        },
-        {
-          $group: {
-            _id: null,
-            totalcount: { $sum: 1 },
-            isbellTrue: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$channelsSubscribed.isbell", true] },
-                  then: 1,
-                  else: 0,
-                },
-              },
-            },
-            isbellFalse: {
-              $sum: {
-                $cond: {
-                  if: { $eq: ["$channelsSubscribed.isbell", false] },
-                  then: 1,
-                  else: 0,
-                },
-              },
+
+    let matchStage;
+    if (isbell === "true" || isbell === "false") {
+      matchStage = {
+        $match: {
+          channelsSubscribed: {
+            $elemMatch: {
+              isbell: isbell === "true" ? true : false,
+              channelId: channelId,
             },
           },
         },
-      ])
-      .toArray();
+      };
+    } else {
+      matchStage = { $match: { "channelsSubscribed.channelId": channelId } };
+    }
+    const users = await getDataFromAggregation([
+      matchStage,
+      {
+        $count: "count",
+      },
+    ]);
+
     console.log(users);
     ctx.body = {
       status: 200,
-      totalcount: users[0].totalcount,
+      totalcount: users[0].count,
       totalisBellOn: users[0].isbellTrue,
       totalisBellOff: users[0].isbellFalse,
     };
