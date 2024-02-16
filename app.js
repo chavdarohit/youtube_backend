@@ -25,7 +25,7 @@ publicRouter.post("/", (ctx) => {
 
 app.on("error", (err, ctx) => {
   console.error("Unhandled error occurred:", err);
-  // You can cust omize the error response here
+  // You can customize the error response here
   ctx.status = 500;
   ctx.body = "Internal Server Error";
 });

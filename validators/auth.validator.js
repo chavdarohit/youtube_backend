@@ -1,4 +1,4 @@
-const { getUserFromDbUsingEmail } = require("../queries/userCollection");
+const { getUserFromDbUsingEmail } = require("../queries/userCollectionQueries");
 
 let namePattern = /^[a-zA-Z]+$/;
 let passwordPattern =
@@ -6,7 +6,7 @@ let passwordPattern =
 let emailpattern = /^[a-zA-Z0-9]+@[a-zA-Z]+\.[a-z]{2,4}$/;
 
 let mobilePattern = /^\d{10}$/;
-const firstNameValidator = ({ firstname },ctx) => {
+const firstNameValidator = ({ firstname }, ctx) => {
   let err = null;
 
   if (!firstname) {
@@ -41,7 +41,7 @@ const firstNameValidator = ({ firstname },ctx) => {
   return err;
 };
 
-const lastNameValidator = ({ lastname },ctx) => {
+const lastNameValidator = ({ lastname }, ctx) => {
   let err = null;
 
   if (!lastname) {
@@ -76,7 +76,7 @@ const lastNameValidator = ({ lastname },ctx) => {
   return err;
 };
 
-const passwordValidator = ({ password },ctx) => {
+const passwordValidator = ({ password }, ctx) => {
   let err = null;
 
   if (!password) {
@@ -158,7 +158,7 @@ const genderValidator = ({ gender }) => {
 
   return err;
 };
-const mobileValidator = ({ mobile },ctx) => {
+const mobileValidator = ({ mobile }, ctx) => {
   let err = null;
 
   if (!mobile) {
@@ -174,7 +174,6 @@ const mobileValidator = ({ mobile },ctx) => {
   }
   mobile = mobile.trim();
   ctx.request.body.mobile = mobile;
-
 
   if (!mobilePattern.test(mobile)) {
     err = {

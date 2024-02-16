@@ -4,9 +4,8 @@ const {
   updateUser,
   getUserFromDbUsingId,
   getDataFromAggregation,
-} = require("../queries/userCollection");
+} = require("../queries/userCollectionQueries");
 const { getAllChannels } = require("../queries/suggestedCollections");
-const { userCollection } = require("../config/dbconfig");
 
 async function viewProfile(ctx) {
   const user = ctx.state.user;
@@ -70,7 +69,11 @@ async function subscribeChannel(ctx) {
   try {
     let condition = {
       $addToSet: {
-        channelsSubscribed: { channelId: channelId, isbell: false },
+        channelsSubscribed: {
+          channelId: channelId,
+          isbell: false,
+          subscribedOn: new Date(),
+        },
       },
     };
     const ack = await updateUser(userId, condition);

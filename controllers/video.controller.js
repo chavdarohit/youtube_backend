@@ -1,4 +1,5 @@
-const { getAllVideos } = require("../queries/videoCollection");
+const { updateUser } = require("../queries/userCollectionQueries");
+const { getAllVideos, updateVideo } = require("../queries/videoCollection");
 
 const videoList = async (ctx) => {
   let { channelId, title, tags } = ctx.query;
@@ -27,4 +28,75 @@ const videoList = async (ctx) => {
     ctx.body = "no videos found";
   }
 };
-module.exports = { videoList };
+const videoLike = async (ctx) => {
+  // console.log("in video like");
+  const { videoId } = ctx.params;
+  try {
+    let userCondition = {},
+      videoCondition = {};
+    if (videoId) {
+      userCondition.$addToSet = { videoLiked: videoId };
+      videoCondition.$inc = { totalLikes: 1 };
+    }
+    const userack = await updateUser(ctx.state.user.userId, userCondition);
+    const videoack = await updateVideo(videoId, videoCondition);
+
+    ctx.status = 200;
+    ctx.body = "Video Liked";
+    console.log(
+      "video Liked by ",
+      ctx.state.user.firstname,
+      ctx.state.user.lastname
+    );
+  } catch (err) {
+    console.log(err);
+    ctx.status = 500;
+    ctx.body = "Internal Server Error";
+  }
+};
+const videoDislike = async (ctx) => {
+  const { videoId } = ctx.params;
+  try {
+    let userCondition = {},
+      videoCondition = {};
+    if (videoId) {
+      userCondition.$addToSet = { videoDisliked: videoId };
+      videoCondition.$inc = { totalDislikes: 1 };
+    }
+    await updateUser(ctx.state.user.userId, userCondition);
+    await updateVideo(videoId, videoCondition);
+
+    ctx.status = 200;
+    ctx.body = "Video Disliked";
+    console.log(
+      "video Disliked by ",
+      ctx.state.user.firstname,
+      ctx.state.user.lastname
+    );
+  } catch (err) {
+    console.log(err);
+    ctx.status = 500;
+    ctx.body = "Internal Server Error";
+  }
+};
+const videoComment = async (ctx) => {
+  // console.log("in video comment");
+  const { comment } = ctx.request.body;
+  const videoId = ctx.params.id;
+
+  try {
+    let condition = {};
+    if (comment) {
+      condition.$addToSet = { comments: comment };
+    }
+    await updateVideo(videoId, condition);
+
+    ctx.status = 200;
+    ctx.body = "comment sucesfull";
+  } catch (err) {
+    ctx.status = 500;
+    ctx.body = "Internal server Error";
+  }
+};
+
+module.exports = { videoList, videoLike, videoDislike, videoComment };

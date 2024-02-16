@@ -1,7 +1,13 @@
 const { videoCollection } = require("../config/dbconfig");
 
 const getAllVideos = async (condition) => {
-  const videos = await videoCollection.find(condition).toArray();
-  return videos;
+  return await videoCollection.find(condition).toArray();
 };
-module.exports = { getAllVideos };
+const getAllVideosFromAggreation = async (pipeline) => {
+  return await videoCollection.aggregate(pipeline).toArray();
+};
+
+const updateVideo = async (videoId, condition) => {
+  return await videoCollection.updateOne({ videoId: videoId }, condition);
+};
+module.exports = { getAllVideos, updateVideo, getAllVideosFromAggreation };

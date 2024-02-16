@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const {
   getUsersFromDb,
   getDataFromAggregation,
-} = require("../queries/userCollection");
+} = require("../queries/userCollectionQueries");
 
 const { userCollection } = require("../config/dbconfig");
 require("dotenv").config();

@@ -1,4 +1,4 @@
-const { getUserFromDbUsingId } = require("../queries/userCollection");
+const { getUserFromDbUsingId } = require("../queries/userCollectionQueries");
 const jwt = require("jsonwebtoken");
 
 const checkBuddy = async ({ buddyId }, ctx) => {
@@ -48,7 +48,7 @@ const checkBuddyAlreadyExists = async ({ token, decision }, ctx) => {
   }
   ctx.state.user = user;
   ctx.buddy = buddy;
-//   console.log("in context ", ctx.state.user.userId, ctx.buddy.Id);
+  //   console.log("in context ", ctx.state.user.userId, ctx.buddy.Id);
 
   return err;
 };

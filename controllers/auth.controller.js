@@ -4,9 +4,8 @@ const { v4: uuidv4 } = require("uuid");
 const { userCollection } = require("../config/dbconfig");
 const {
   signup,
-
   getUserFromDbUsingEmail,
-} = require("../queries/userCollection");
+} = require("../queries/userCollectionQueries");
 
 const signupInsert = async (ctx) => {
   let {

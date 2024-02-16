@@ -1,8 +1,5 @@
 const jwt = require("jsonwebtoken");
-const {
-  getUserFromDb,
-  getUserFromDbUsingId,
-} = require("../queries/userCollection");
+const { getUserFromDbUsingId } = require("../queries/userCollectionQueries");
 
 require("dotenv").config();
 

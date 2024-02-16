@@ -64,7 +64,6 @@ const getDataFromAggregation = async (pipeline) => {
 module.exports = {
   getDataFromAggregation,
   updateUserToPremium,
-
   updateUser,
   updateUserChannelBellIconStatus,
   getUsersFromDb,
