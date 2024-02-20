@@ -1,3 +1,4 @@
+const { videoInteraction } = require("../config/dbconfig");
 const { getAllVideos } = require("../queries/videoCollection");
 
 const alreadyvideoPresent = async (_, ctx) => {
@@ -8,7 +9,7 @@ const alreadyvideoPresent = async (_, ctx) => {
     return err;
   }
 
-  if (videoPresent(ctx.params.videoId, ctx)) {
+  if (await videoPresent(ctx.params.videoId, ctx)) {
     if (ctx.originalUrl.includes("like"))
       err = { message: "video Already Liked", field: "videoId" };
 
@@ -19,22 +20,27 @@ const alreadyvideoPresent = async (_, ctx) => {
   return err;
 };
 
-const videoPresent = (videoId, ctx) => {
-  const user = ctx.state.user;
+const videoPresent = async (videoId, ctx) => {
+  const userId = ctx.state.user.userId;
   let video;
 
   if (ctx.originalUrl.includes("like")) {
-    video = user.videoLiked.find((id) => {
-      return id === videoId;
+    console.log("in like");
+    video = await videoInteraction.findOne({
+      userId,
+      videoId,
+      status: "liked",
     });
   }
 
   if (ctx.originalUrl.includes("dislike")) {
-    video = user.videoDisliked.find((id) => {
-      return id === videoId;
+    console.log("in dislike");
+    video = await videoInteraction.findOne({
+      userId,
+      videoId,
+      status: "disliked",
     });
   }
-
   if (video) return true;
   return false;
 };

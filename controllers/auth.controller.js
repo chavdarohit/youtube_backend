@@ -1,12 +1,7 @@
 const bcrypt = require("bcrypt");
 const makeJwtToken = require("../utils/MakeAuthToken");
 const { v4: uuidv4 } = require("uuid");
-const { userCollection } = require("../config/dbconfig");
-const {
-  signup,
-  getUserFromDbUsingEmail,
-} = require("../queries/userCollectionQueries");
-
+const userCollectionQueries = require("../queries/userCollectionQueries");
 const signupInsert = async (ctx) => {
   let {
     firstname: fname,
@@ -22,8 +17,6 @@ const signupInsert = async (ctx) => {
 
   try {
     let encryptedpssd = await bcrypt.hash(pssd, 10);
-    // let imagePath = ctx.file ? ctx.file.path : null;
-    // imagePath = imagePath?.split("\\")[1];
 
     const objdata = {
       firstname: fname,
@@ -41,9 +34,10 @@ const signupInsert = async (ctx) => {
       userId: uuidv4(),
     };
     console.log("Storging data = ", objdata);
-    const ack = await signup(objdata);
-    const user = await userCollection.getUserFromDbUsingId(objdata.userId);
-    // const user = await userCollection.findOne({ userId: objdata.userId });
+    const ack = await userCollectionQueries.signup(objdata);
+    const user = await userCollectionQueries.getUserFromDbUsingId(
+      objdata.userId
+    );
     const userId = objdata.userId;
     console.log("User retrieved ", user, userId);
     const token = makeJwtToken(userId);
@@ -64,8 +58,8 @@ const signupInsert = async (ctx) => {
 const loginUser = async (ctx) => {
   let { email, password } = ctx.request.body;
   email = email.toLowerCase();
-  const userExists = await getUserFromDbUsingEmail(email);
-
+  // console.log("on 65 ", userCollectionQueries.getUserFromDbUsingEmail);
+  const userExists = await userCollectionQueries.getUserFromDbUsingEmail(email);
   if (!userExists) {
     ctx.status = 401;
     ctx.body = "Invalid credentials";

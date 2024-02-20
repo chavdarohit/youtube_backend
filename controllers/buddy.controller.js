@@ -202,7 +202,7 @@ const allChannels = async (ctx) => {
       buddyIds = [...user.buddies, user.userId];
     }
 
-    console.log(user.isPremium, "user is premium");
+    // console.log(user.isPremium, "user is premium");
     const result = await userCollection
       .aggregate([
         {
@@ -223,40 +223,6 @@ const allChannels = async (ctx) => {
         {
           $unwind: "$suggestedChannels",
         },
-        // {
-        //   $group: {
-        //     _id: null,
-        //     channels: {
-        //       $addToSet: {
-        //         $cond: {
-        //           if: { $eq: [user.isPremium, true] },
-        //           then: "$suggestedChannels",
-        //           else: {
-        //             $cond: {
-        //               if: { $eq: [user.isPremium, false] },
-        //               then: {
-        //                 $cond: {
-        //                   if: { $eq: ["$suggestedChannels.isPremium", false] },
-        //                   then: "$suggestedChannels",
-        //                   else: null,
-        //                 },
-        //               },
-        //               else: null,
-        //             },
-        //           },
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
-        // {
-        //   $project: {
-        //     _id: 0,
-        //     finalChannels: {
-        //       $slice: ["$channels", 0, 100],
-        //     },
-        //   },
-        // },
         {
           $group: {
             _id: null,

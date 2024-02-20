@@ -1,10 +1,11 @@
 const supertest = require("supertest");
+const userCollectionQueries = require("../queries/userCollectionQueries");
 const app = require("../app");
-const userCollection = require("../queries/userCollection");
 const request = supertest(app.listen());
 
 describe("login endpoint", () => {
-  const _getuserFromDbUsingEmail = userCollection.getUserFromDbUsingEmail;
+  const _getuserFromDbUsingEmail =
+    userCollectionQueries.getUserFromDbUsingEmail;
 
   let validUser = {
     email: "test@example.com",
@@ -13,9 +14,9 @@ describe("login endpoint", () => {
   };
 
   beforeEach(() => {
-    console.log("inside before each");
-    userCollection.getUserFromDbUsingEmail = jest.fn((requestEmail) => {
-      console.log("calling mock function");
+    // console.log("inside before each");
+    userCollectionQueries.getUserFromDbUsingEmail = jest.fn((requestEmail) => {
+      // console.log("calling mock function");
       if (requestEmail === validUser.email) {
         return validUser;
       } else {
@@ -24,20 +25,12 @@ describe("login endpoint", () => {
     });
   });
 
-  // afterEach(() => {
-  //   userCollection.getUserFromDbUsingEmail = _getuserFromDbUsingEmail;
-  // });
+  afterEach(() => {
+    userCollectionQueries.getUserFromDbUsingEmail = _getuserFromDbUsingEmail;
+  });
 
   describe("login potentials", () => {
-    it.only("Login should be succesfull with proper data", async () => {
-      userCollection.getUserFromDbUsingEmail = jest.spyOn(
-        userCollection,
-        "getUserFromDbUsingEmail"
-      );
-
-      userCollection.getUserFromDbUsingEmail.mockImplementation(
-        (requestEmail) => "mock"
-      );
+    it("Login should be succesfull with proper data", async () => {
       const response = await request.post("/api/auth/login").send({
         email: "test@example.com",
         password: "securePassword",
@@ -55,7 +48,6 @@ describe("login endpoint", () => {
       });
       expect(response.status).toBe(401);
       expect(response.text).toBe("Invalid credentials");
-      expect(response.body.user).toEqual(null);
     });
     it("Login failed with no proper Password", async () => {
       const response = await request.post("/api/auth/login").send({

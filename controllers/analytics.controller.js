@@ -1,21 +1,33 @@
-const { pipeline } = require("nodemailer/lib/xoauth2");
-const { videoCollection } = require("../config/dbconfig");
-const {
-  getAllVideos,
-  getAllVideosFromAggreation,
-} = require("../queries/videoCollection");
+const { getAllVideosFromAggreation } = require("../queries/videoCollection");
 const { getDataFromAggregation } = require("../queries/userCollectionQueries");
 
-const channelAnalytics = async (ctx) => {
+const videoAnalytics = async (ctx) => {
   const channelId = ctx.params.id;
 
+  // if channelId will there then we will make the condition for doing query
   let condition = {};
   if (channelId) {
     condition.uploadedBy = channelId;
   }
+
+  const top5videoPipeline = [
+    {
+      $match: {
+        uploadedBy: channelId,
+      },
+    },
+    {
+      $sort: {
+        totalLikes: -1,
+      },
+    },
+    {
+      $limit: 5,
+    },
+  ];
   const videoPipeline = [
     {
-      $match: { uploadedBy: "0f16046a-9ab4-41f7-a9da-58f662eda481" },
+      $match: { uploadedBy: channelId },
     },
     {
       $group: {
@@ -23,34 +35,32 @@ const channelAnalytics = async (ctx) => {
         totalLikes: { $sum: "$totalLikes" },
         totalDislikes: { $sum: "$totalDislikes" },
         totalComments: { $sum: { $size: "$comments" } },
-        videos: { $push: "$$ROOT" },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        totalLikes: 1,
-        totalComments: 1,
-        totalDislikes: 1,
-        videos: {
-          $sortArray: { input: "$videos", sortBy: { totalLikes: -1 } },
-        },
-      },
-    },
-    {
-      $project: {
-        totalLikes: 1,
-        totalDislikes: 1,
-        totalComments: 1,
-        videos: { $slice: ["$videos", 5] },
       },
     },
   ];
 
-  const userPipeline = [
+  const videosAnlytics = await getAllVideosFromAggreation(videoPipeline);
+  const videos = await getAllVideosFromAggreation(top5videoPipeline);
+
+  ctx.status = 200;
+  ctx.body = {
+    videoAnalytics: videosAnlytics,
+    top5videos: videos,
+  };
+};
+
+const subscriberAnalytics = async (ctx) => {
+  const channelId = ctx.params.id;
+
+  let condition = {};
+  if (channelId) {
+    condition.uploadedBy = channelId;
+  }
+
+  const newSubscribersPipeline = [
     {
       $match: {
-        "channelsSubscribed.channelId": "406528b5-8896-4547-8673-ad433782d96b",
+        "channelsSubscribed.channelId": channelId,
       },
     },
     {
@@ -77,6 +87,22 @@ const channelAnalytics = async (ctx) => {
             0,
           ],
         },
+      },
+    },
+    {
+      $sort: {
+        "channel.subscribedOn": -1,
+      },
+    },
+    {
+      $limit: 5,
+    },
+  ];
+
+  const subscriberAnalyticsPipeline = [
+    {
+      $match: {
+        "channelsSubscribed.channelId": channelId,
       },
     },
     {
@@ -161,45 +187,19 @@ const channelAnalytics = async (ctx) => {
             },
           },
         },
-        newSubscribers: {
-          $push: "$$ROOT",
-        },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        totalSubscribers: 1,
-        totalfemale: 1,
-        totalmale: 1,
-        "0to20": 1,
-        "20to40": 1,
-        "40to60": 1,
-        subscribers: {
-          $sortArray: {
-            input: "$newSubscribers",
-            sortBy: { "channel.subscribedOn": -1 },
-          },
-        },
-      },
-    },
-    {
-      $project: {
-        totalSubscribers: 1,
-        totalfemale: 1,
-        totalmale: 1,
-        "0to20": 1,
-        "20to40": 1,
-        "40to60": 1,
-        newSubscribers: { $slice: ["$subscribers", 5] },
       },
     },
   ];
 
-  const videos = await getAllVideosFromAggreation(videoPipeline);
-  const users = await getDataFromAggregation(userPipeline);
+  const subscriberAnalytics = await getDataFromAggregation(
+    subscriberAnalyticsPipeline
+  );
+  const newSubscribers = await getDataFromAggregation(newSubscribersPipeline);
 
   ctx.status = 200;
-  ctx.body = { videoAnalytics: videos[0], subscriberAnalytics: users[0] };
+  ctx.body = {
+    subscriberAnalytics,
+    newSubscribers,
+  };
 };
-module.exports = { channelAnalytics };
+module.exports = { subscriberAnalytics, videoAnalytics };

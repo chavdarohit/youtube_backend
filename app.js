@@ -13,7 +13,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-// app.use(koaBody({ multipart: true }));
 app.use(koaBody());
 app.use(serve("./public"));
 app.use(publicRouter.routes());
@@ -21,13 +20,6 @@ app.use(privateRouter.routes());
 
 publicRouter.post("/", (ctx) => {
   ctx.body = "Hello World";
-});
-
-app.on("error", (err, ctx) => {
-  console.error("Unhandled error occurred:", err);
-  // You can customize the error response here
-  ctx.status = 500;
-  ctx.body = "Internal Server Error";
 });
 
 app.listen(80, () => {

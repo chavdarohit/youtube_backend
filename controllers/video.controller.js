@@ -1,5 +1,6 @@
 const { updateUser } = require("../queries/userCollectionQueries");
 const { getAllVideos, updateVideo } = require("../queries/videoCollection");
+const { addRecord } = require("../queries/videoInteractionQueries");
 
 const videoList = async (ctx) => {
   let { channelId, title, tags } = ctx.query;
@@ -32,14 +33,18 @@ const videoLike = async (ctx) => {
   // console.log("in video like");
   const { videoId } = ctx.params;
   try {
-    let userCondition = {},
-      videoCondition = {};
+    let videoCondition = {};
     if (videoId) {
-      userCondition.$addToSet = { videoLiked: videoId };
       videoCondition.$inc = { totalLikes: 1 };
     }
-    const userack = await updateUser(ctx.state.user.userId, userCondition);
-    const videoack = await updateVideo(videoId, videoCondition);
+    await addRecord({
+      userId: ctx.state.user.userId,
+      videoId,
+      on: new Date(),
+      status: "liked",
+    });
+
+    await updateVideo(videoId, videoCondition);
 
     ctx.status = 200;
     ctx.body = "Video Liked";
@@ -57,13 +62,19 @@ const videoLike = async (ctx) => {
 const videoDislike = async (ctx) => {
   const { videoId } = ctx.params;
   try {
-    let userCondition = {},
-      videoCondition = {};
+    let videoCondition = {};
     if (videoId) {
-      userCondition.$addToSet = { videoDisliked: videoId };
       videoCondition.$inc = { totalDislikes: 1 };
     }
-    await updateUser(ctx.state.user.userId, userCondition);
+
+    await addRecord({
+      userId: ctx.state.user.userId,
+      videoId,
+      on: new Date(),
+      status: "disliked",
+    });
+
+    // await updateUser(ctx.state.user.userId, userCondition);
     await updateVideo(videoId, videoCondition);
 
     ctx.status = 200;
@@ -92,7 +103,7 @@ const videoComment = async (ctx) => {
     await updateVideo(videoId, condition);
 
     ctx.status = 200;
-    ctx.body = "comment sucesfull";
+    ctx.body = "comment sucessfull";
   } catch (err) {
     ctx.status = 500;
     ctx.body = "Internal server Error";
