@@ -12,6 +12,7 @@ const {
   bdayValidator,
   emailAlreadyExistsValidator,
 } = require("../validators/auth.validator");
+
 router.post(
   "/signup",
   validate([

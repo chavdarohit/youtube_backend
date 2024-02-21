@@ -16,13 +16,15 @@ const getUsersFromDb = async (condition, projection) => {
 };
 
 const getUserFromDbUsingId = async (uid) => {
+  console.log("callling original getUserFromDbUsing ID function");
   const user = await userCollection.findOne({
     userId: uid,
   });
   return user;
 };
+
 const getUserFromDbUsingEmail = async (email) => {
-  console.log("calling original function");
+  console.log("calling original getUserFromDbUsingEmail function");
   const user = await userCollection.findOne({
     email,
   });

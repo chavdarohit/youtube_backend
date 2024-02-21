@@ -1,4 +1,5 @@
-const { getUserFromDbUsingEmail } = require("../queries/userCollectionQueries");
+// const { getUserFromDbUsingEmail } = require("../queries/userCollectionQueries");
+const userCollectionQueries = require("../queries/userCollectionQueries");
 
 let namePattern = /^[a-zA-Z]+$/;
 let passwordPattern =
@@ -45,7 +46,7 @@ const lastNameValidator = ({ lastname }, ctx) => {
   let err = null;
 
   if (!lastname) {
-    err = { message: "Enter last name", field: "lastname" };
+    err = { message: "Enter Last name", field: "lastname" };
     return err;
   }
   if (typeof lastname !== "string") {
@@ -67,7 +68,7 @@ const lastNameValidator = ({ lastname }, ctx) => {
 
   if (!namePattern.test(lastname)) {
     err = {
-      message: "Firstname can only contain characters",
+      message: "Lastname can only contain characters",
       field: "lastname",
     };
     return err;
@@ -80,7 +81,7 @@ const passwordValidator = ({ password }, ctx) => {
   let err = null;
 
   if (!password) {
-    err = { message: "Enter password ", field: "password" };
+    err = { message: "Enter password", field: "password" };
     return err;
   }
   password = password.trim();
@@ -102,7 +103,7 @@ const confPasswordValidator = ({ password, cpassword }) => {
   let err = null;
 
   if (!cpassword) {
-    err = { message: "Enter confirm password ", field: "cpassword" };
+    err = { message: "Enter confirm password", field: "cpassword" };
     return err;
   }
 
@@ -116,7 +117,7 @@ const confPasswordValidator = ({ password, cpassword }) => {
   return err;
 };
 
-const emailValidator = ({ email }) => {
+const emailValidator = ({ email }, ctx) => {
   let err = null;
 
   if (!email) {
@@ -129,7 +130,7 @@ const emailValidator = ({ email }) => {
 
   if (!emailpattern.test(email)) {
     err = {
-      message: "Enter email",
+      message: "Email is Not valid",
       field: "email",
     };
     return err;
@@ -151,7 +152,7 @@ const genderValidator = ({ gender }) => {
   if (gender !== "m" && gender !== "f") {
     err = {
       message: "Gender Must be 'Male' or 'Female'",
-      field: "Gender",
+      field: "gender",
     };
     return err;
   }
@@ -222,9 +223,19 @@ const bdayValidator = ({ bday }, ctx) => {
 
 const emailAlreadyExistsValidator = async ({ email }, ctx) => {
   let err = null;
-  email = email.toLowerCase();
 
-  const users = await getUserFromDbUsingEmail(email);
+  if (!email) {
+    err = {
+      message: "Invalid user email",
+      field: "email",
+    };
+    return err;
+  }
+
+  const users = await userCollectionQueries.getUserFromDbUsingEmail(
+    email.toLowerCase()
+  );
+
   if (users) {
     err = { message: "User already Exists", field: "email" };
     return err;

@@ -6,17 +6,11 @@ const {
   getDataFromAggregation,
 } = require("../queries/userCollectionQueries");
 const { getAllChannels } = require("../queries/suggestedCollections");
+const suggestedCollectionsQueries = require("../queries/suggestedCollections");
 
 async function viewProfile(ctx) {
   const user = ctx.state.user;
   console.log("User id in view profile ", user.firstname);
-  if (!user) {
-    ctx.status = 404;
-    ctx.body = "User Not found";
-    console.log("User not found in Db");
-    return;
-  }
-
   ctx.body = {
     status: 200,
     user,
@@ -45,11 +39,12 @@ async function suggestedChannels(ctx) {
     if (userschannel.length) {
       condition.channelId = { $nin: userschannel };
     }
-    // console.log("Filtered ", channels);
-    let { channels, totalCount } = await getAllChannels(condition, skip, limit);
 
+    let { channels, totalCount } =
+      await suggestedCollectionsQueries.getAllChannels(condition, skip, limit);
+
+    ctx.body = 200;
     ctx.body = {
-      status: 200,
       channels,
       totalPages: Math.ceil(totalCount / limit),
     };
