@@ -1,0 +1,183 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Data testings View Subscribed Channel : Name in Ascending    1`] = `
+{
+  "channels": [
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593ae",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/businessman-character-avatar-isolated_24877-57833.jpg?w=2000",
+      "channelId": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+      "channelName": "DigitalInsights",
+      "description": "Dive into the digital world and gain valuable insights.",
+      "isPremium": false,
+      "subscribersCount": 42000,
+    },
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593ad",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/gamer-youtuber-gaming-avatar-with-headphones-esport-logo_8169-260.jpg?w=2000",
+      "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+      "channelName": "TechExplorer",
+      "description": "Unraveling the mysteries of cutting-edge technology.",
+      "isPremium": true,
+      "subscribersCount": 55000,
+    },
+  ],
+  "totalPages": 1,
+}
+`;
+
+exports[`Data testings View Subscribed Channel : Name in Descending  1`] = `
+{
+  "channels": [
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593ad",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/gamer-youtuber-gaming-avatar-with-headphones-esport-logo_8169-260.jpg?w=2000",
+      "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+      "channelName": "TechExplorer",
+      "description": "Unraveling the mysteries of cutting-edge technology.",
+      "isPremium": true,
+      "subscribersCount": 55000,
+    },
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593ae",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/businessman-character-avatar-isolated_24877-57833.jpg?w=2000",
+      "channelId": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+      "channelName": "DigitalInsights",
+      "description": "Dive into the digital world and gain valuable insights.",
+      "isPremium": false,
+      "subscribersCount": 42000,
+    },
+  ],
+  "totalPages": 1,
+}
+`;
+
+exports[`Data testings View Subscribed Channel : No channel Found    1`] = `{}`;
+
+exports[`Data testings View Subscribed Channel : Subscribers in Ascending  1`] = `
+{
+  "channels": [
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593ae",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/businessman-character-avatar-isolated_24877-57833.jpg?w=2000",
+      "channelId": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+      "channelName": "DigitalInsights",
+      "description": "Dive into the digital world and gain valuable insights.",
+      "isPremium": false,
+      "subscribersCount": 42000,
+    },
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593ad",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/gamer-youtuber-gaming-avatar-with-headphones-esport-logo_8169-260.jpg?w=2000",
+      "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+      "channelName": "TechExplorer",
+      "description": "Unraveling the mysteries of cutting-edge technology.",
+      "isPremium": true,
+      "subscribersCount": 55000,
+    },
+  ],
+  "totalPages": 1,
+}
+`;
+
+exports[`Data testings View Subscribed Channel : Subscribers in Descending  1`] = `
+{
+  "channels": [
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593ad",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/gamer-youtuber-gaming-avatar-with-headphones-esport-logo_8169-260.jpg?w=2000",
+      "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+      "channelName": "TechExplorer",
+      "description": "Unraveling the mysteries of cutting-edge technology.",
+      "isPremium": true,
+      "subscribersCount": 55000,
+    },
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593ae",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/businessman-character-avatar-isolated_24877-57833.jpg?w=2000",
+      "channelId": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+      "channelName": "DigitalInsights",
+      "description": "Dive into the digital world and gain valuable insights.",
+      "isPremium": false,
+      "subscribersCount": 42000,
+    },
+  ],
+  "totalPages": 1,
+}
+`;
+
+exports[`Data testings View Subscribed Channel : valid channel    1`] = `
+{
+  "channels": [
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593ad",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/gamer-youtuber-gaming-avatar-with-headphones-esport-logo_8169-260.jpg?w=2000",
+      "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+      "channelName": "TechExplorer",
+      "description": "Unraveling the mysteries of cutting-edge technology.",
+      "isPremium": true,
+      "subscribersCount": 55000,
+    },
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593ae",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/businessman-character-avatar-isolated_24877-57833.jpg?w=2000",
+      "channelId": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+      "channelName": "DigitalInsights",
+      "description": "Dive into the digital world and gain valuable insights.",
+      "isPremium": false,
+      "subscribersCount": 42000,
+    },
+  ],
+  "totalPages": 1,
+}
+`;
+
+exports[`Data testings all suggested channels 1`] = `
+{
+  "channels": [
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593ad",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/gamer-youtuber-gaming-avatar-with-headphones-esport-logo_8169-260.jpg?w=2000",
+      "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+      "channelName": "TechExplorer",
+      "description": "Unraveling the mysteries of cutting-edge technology.",
+      "isPremium": true,
+      "subscribersCount": 55000,
+    },
+    {
+      "_id": {
+        "$oid": "65b9eb0931a51cb0be4593b0",
+      },
+      "avatarImage": "https://img.freepik.com/premium-vector/technology-logo-collection_23-2148153848.jpg?w=2000",
+      "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+      "channelName": "InfiniteTechHub",
+      "description": "Exploring the limitless possibilities of technology.",
+      "isPremium": true,
+      "subscribersCount": 89000,
+    },
+  ],
+  "totalPages": 1,
+}
+`;

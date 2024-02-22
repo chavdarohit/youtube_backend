@@ -67,6 +67,4 @@ router.post(
   updateprofile
 );
 
-router.post("/count/:id", verifyToken, subscribeCount);
-
 module.exports = router.routes();

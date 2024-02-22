@@ -18,14 +18,6 @@ app.use(serve("./public"));
 app.use(publicRouter.routes());
 app.use(privateRouter.routes());
 
-publicRouter.post("/", (ctx) => {
-  ctx.body = "Hello World";
-});
-
-// app.listen(80, () => {
-//   console.log(`Server is running on port 80...🚀`);
-// });
-
 const connectToMongodb = async () => {
   try {
     await db.connectToDatabase();
@@ -35,7 +27,6 @@ const connectToMongodb = async () => {
 };
 
 if (process.env.NODE_ENV !== "test") {
-  // Connect to MongoDB only when not in test environment
   connectToMongodb();
 }
 module.exports = app;

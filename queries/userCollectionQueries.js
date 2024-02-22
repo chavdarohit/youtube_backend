@@ -11,8 +11,12 @@ async function signup(obj) {
 }
 
 const getUsersFromDb = async (condition, projection) => {
+  console.log("calling original getusersfromdb");
   const users = await userCollection.find(condition, projection).toArray();
   return users;
+};
+const bulkWriteInDb = async (operations) => {
+  return await userCollection.bulkWrite(operations);
 };
 
 const getUserFromDbUsingId = async (uid) => {
@@ -70,6 +74,7 @@ module.exports = {
   updateUserChannelBellIconStatus,
   getUsersFromDb,
   getUserFromDbUsingId,
+  bulkWriteInDb,
   signup,
   getUserFromDbUsingEmail,
 };

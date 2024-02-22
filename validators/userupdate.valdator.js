@@ -4,17 +4,16 @@ const userUpdateValidator = (
 ) => {
   let err = null;
   const user = ctx.state.user;
-
   if (
     firstname === user.firstname &&
     lastname === user.lastname &&
     mobile === user.mobile &&
     gender === user.gender &&
-    bday === user.birthdate &&
+    bday === user.bday &&
     age === user.age
   ) {
-    err = { status: 200, message: "No Information Updated" };
     console.log("No information updated - all Field are same");
+    err = { status: 200, message: "No Information Updated" };
     return err;
   }
   return err;

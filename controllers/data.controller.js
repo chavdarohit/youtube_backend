@@ -1,12 +1,11 @@
 const {
-  updateUserChannelBellIconStatus,
   updateUserToPremium,
   updateUser,
   getUserFromDbUsingId,
   getDataFromAggregation,
 } = require("../queries/userCollectionQueries");
-const { getAllChannels } = require("../queries/suggestedCollections");
 const suggestedCollectionsQueries = require("../queries/suggestedCollections");
+const userCollectionQueries = require("../queries/userCollectionQueries");
 
 async function viewProfile(ctx) {
   const user = ctx.state.user;
@@ -43,7 +42,7 @@ async function suggestedChannels(ctx) {
     let { channels, totalCount } =
       await suggestedCollectionsQueries.getAllChannels(condition, skip, limit);
 
-    ctx.body = 200;
+    ctx.status = 200;
     ctx.body = {
       channels,
       totalPages: Math.ceil(totalCount / limit),
@@ -53,7 +52,6 @@ async function suggestedChannels(ctx) {
       status: 500,
       massage: "Internal server error",
     };
-    console.log("error while suggesting channels", err);
   }
 }
 
@@ -71,22 +69,11 @@ async function subscribeChannel(ctx) {
         },
       },
     };
-    const ack = await updateUser(userId, condition);
-    if (ack.modifiedCount === 0 && ack.matchedCount === 1) {
-      ctx.body = {
-        status: 204,
-        massage: "Channel Already Subscribed",
-      };
-      console.log("Channel Already Subscribed");
-      return;
-    }
-    ctx.body = {
-      status: 200,
-      massage: "Channel Subscribed",
-    };
+    await userCollectionQueries.updateUser(userId, condition);
+
+    (ctx.status = 200), (ctx.body = "Channel Subscribed");
     console.log("Channel Subscribed");
   } catch (err) {
-    console.error("Error Subscribing channel:", err);
     ctx.body = {
       status: 401,
       massage: "There is something wrong while subscribe",
@@ -104,19 +91,8 @@ async function unsubscribeChannel(ctx) {
         channelsSubscribed: { channelId: channelId },
       },
     };
-    const ack = await updateUser(userId, condition);
-    if (ack.modifiedCount === 0 && ack.matchedCount === 1) {
-      ctx.body = {
-        status: 204,
-        massage: "Channel Unsubscribed Succesfully",
-      };
-      console.log("Channel Unsubscribed Succesfully");
-      return;
-    }
-    ctx.body = {
-      status: 200,
-      massage: "Channel Unsubscribed",
-    };
+    await userCollectionQueries.updateUser(userId, condition);
+    (ctx.status = 200), (ctx.body = "Channel Unsubscribed");
     console.log("Channel Unsubscribed");
   } catch (err) {
     console.error("Error unsubscring channel:", err);
@@ -154,21 +130,21 @@ async function viewSubscribedChannel(ctx) {
       if (_subscribers === "desc") sort.subscribersCount = -1;
     }
 
-    let { channels, totalCount } = await getAllChannels(
-      condition,
-      skip,
-      limit,
-      sort
-    );
-    console.log("view channel subscribed ", sort);
+    let { channels, totalCount } =
+      await suggestedCollectionsQueries.getAllChannels(
+        condition,
+        skip,
+        limit,
+        sort
+      );
 
     if (channels.length === 0) {
       console.log("no channels found");
-      ctx.body = { status: 204, channels };
+      ctx.status = 204;
+      ctx.body = channels;
     } else {
-      console.log("All subscribed channels");
+      ctx.body = 200;
       ctx.body = {
-        status: 200,
         channels,
         totalPages: Math.ceil(totalCount / limit),
       };
@@ -188,134 +164,70 @@ const pressBellIcon = async (ctx) => {
   const channelId = ctx.params.id;
   console.log("user id :", user.userId, " channel id :", channelId);
 
-  try {
-    //getting the value from the db of the bellicon true or false . ??
-    const channel = await user.channelsSubscribed.find(
-      (obj) => obj.channelId === channelId
-    );
-    console.log("Bell is ", channel.isbell);
-    const bell = channel.isbell ? false : true;
+  //getting the value from the db of the bellicon true or false . ??
+  const channel = await user.channelsSubscribed.find(
+    (obj) => obj.channelId === channelId
+  );
+  console.log("Bell is ", channel.isbell);
+  const bell = channel.isbell ? false : true;
 
-    //base on the previous state the bell icon is getting updated
-    const updateBellack = await updateUserChannelBellIconStatus(
-      user.userId,
-      channelId,
-      bell
-    );
-    if (updateBellack.modifiedCount === 0) {
-      ctx.body = { status: 204, message: "No channel found for bell icon" };
-      console.log("Problem in Bell icon");
-      return;
-    }
+  //base on the previous state the bell icon is getting updated
+  await userCollectionQueries.updateUserChannelBellIconStatus(
+    user.userId,
+    channelId,
+    bell
+  );
 
-    ctx.body = {
-      status: 200,
-      message: bell
-        ? "You will recieve Notifications"
-        : "Notification Disabled",
-    };
-    console.log("Updated Bell Icon");
-  } catch (err) {
-    ctx.body = {
-      status: 500,
-      message: "Error while updating the bell icon",
-    };
-    console.log("Error while updating the bell icon", err);
-  }
+  ctx.status = 200;
+  ctx.body = {
+    message: bell ? "You will recieve Notifications" : "Notification Disabled",
+  };
+  console.log("Updated Bell Icon");
 };
 
 const makeUserPremium = async (ctx) => {
-  try {
-    // console.log(ctx.user);
-    const userId = ctx.state.user.userId;
-    const ack = await updateUserToPremium(userId); // console.log("ack ", ack);
-    if (ack) {
-      console.log("User account Upgraded");
-      ctx.body = {
-        status: 200,
-        message: ack.isPremium
-          ? "User updated to Premium"
-          : "User downgrade to Normal ",
-        user: ack,
-      };
-    }
-  } catch (err) {
-    ctx.body = { status: 201, message: "Error making premium" };
-    console.log("Error making premium", err);
+  const userId = ctx.state.user.userId;
+  const ack = await userCollectionQueries.updateUserToPremium(userId);
+  console.log("ack ", ack);
+  if (ack) {
+    console.log("User account Upgraded");
+    ctx.status = 200;
+    ctx.body = {
+      message: ack.isPremium
+        ? "User updated to Premium"
+        : "User downgrade to Normal",
+      user: ack,
+    };
   }
 };
 
 const updateprofile = async (ctx) => {
   let { firstname, lastname, mobile, gender, bday, age } = ctx.request.body;
-  try {
-    let condition = {
-      $set: {
-        firstname,
-        lastname,
-        mobile,
-        gender,
-        birthdate: bday,
-        age,
-      },
-    };
-    // console.log("condition ", condition);
-    await updateUser(ctx.state.user.userId, condition);
-    const updatedUser = await getUserFromDbUsingId(ctx.state.user.userId);
-    ctx.body = {
-      status: 200,
-      message: "User Profile Updated Succesfully",
-      user: updatedUser,
-    };
-    console.log("User Profile Updated Succesfully");
-  } catch (err) {
-    ctx.status = 204;
-    ctx.body = { message: "User Profile Updated Failed" };
-    console.log("User Profile Uspdated Failed", err);
-  }
-};
 
-const subscribeCount = async (ctx) => {
-  try {
-    const { isbell } = ctx.query;
-    const channelId = ctx.params.id;
+  let condition = {
+    $set: {
+      firstname,
+      lastname,
+      mobile,
+      gender,
+      birthdate: bday,
+      age,
+    },
+  };
 
-    let matchStage;
-    if (isbell === "true" || isbell === "false") {
-      matchStage = {
-        $match: {
-          channelsSubscribed: {
-            $elemMatch: {
-              isbell: isbell === "true" ? true : false,
-              channelId: channelId,
-            },
-          },
-        },
-      };
-    } else {
-      matchStage = { $match: { "channelsSubscribed.channelId": channelId } };
-    }
-    const users = await getDataFromAggregation([
-      matchStage,
-      {
-        $count: "count",
-      },
-    ]);
-
-    console.log(users);
-    ctx.body = {
-      status: 200,
-      totalcount: users[0].count,
-      totalisBellOn: users[0].isbellTrue,
-      totalisBellOff: users[0].isbellFalse,
-    };
-  } catch (err) {
-    ctx.body = err;
-    console.log(err);
-  }
+  await userCollectionQueries.updateUser(ctx.state.user.userId, condition);
+  const updatedUser = await userCollectionQueries.getUserFromDbUsingId(
+    ctx.state.user.userId
+  );
+  ctx.status = 200;
+  ctx.body = {
+    message: "User Profile Updated Succesfully",
+    user: updatedUser,
+  };
+  console.log("User Profile Updated Succesfully");
 };
 
 module.exports = {
-  subscribeCount,
   updateprofile,
   viewProfile,
   suggestedChannels,

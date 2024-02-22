@@ -1,0 +1,156 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Buddy testings Searching buddy succesfull : when searchTerm is there 1`] = `
+{
+  "buddies": [
+    {
+      "_id": {
+        "$oid": "65c34d84c7c22dbdcbb7adfe",
+      },
+      "age": null,
+      "birthdate": "2000-12-08",
+      "buddies": [],
+      "channelsSubscribed": [
+        {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T11:11:22.137Z",
+          },
+        },
+      ],
+      "email": "rohitchavda@gmailya.com",
+      "firstname": "rohit",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "chavda",
+      "mobile": 123456890,
+      "password": "$2b$10$X.c6tRs3TK1furKPUNeGvOOeo5hjr.vx4kBBEWh6QvSb85VM6BDWa",
+      "userId": "2f74a2f7-93bd-4318-b1b4-dcea2cb0efb1",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c3598ffe9afddfdaf953c6",
+      },
+      "age": null,
+      "birthdate": "2000-12-08",
+      "buddies": [],
+      "channelsSubscribed": [
+        {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T11:12:10.264Z",
+          },
+        },
+      ],
+      "email": "rohitchavda24@gmailya.com",
+      "firstname": "rohit",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "chavda",
+      "mobile": 1234567890,
+      "password": "$2b$10$Dt/IUbarSGbKo9VoDlzOz.DuvlQN8xhCBSABNcfXBeSIFwUNJt.nu",
+      "userId": "fc96e7d5-4ef7-469b-838f-24f2909623d8",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c37f02ff05b2287e86dde9",
+      },
+      "age": null,
+      "birthdate": "2000-12-08",
+      "buddies": [],
+      "channelsSubscribed": [],
+      "email": "rohitchavda24@gmailya.com",
+      "firstname": "rohit",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "chavda",
+      "mobile": 1234567890,
+      "password": "$2b$10$TOVFWdYrj65k3DTF/0f2weyRhGSDtohLPcBFJ92K4.5qanRJ2.0Ya",
+      "userId": "36f868f4-f1cb-49bf-8bf2-76eebf9acfdc",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c38104cdf4fd7846904320",
+      },
+      "age": 22,
+      "birthdate": "2001-12-20",
+      "buddies": [],
+      "channelsSubscribed": [
+        {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T11:14:03.038Z",
+          },
+        },
+      ],
+      "email": "rohitchavda18@gmailya.com",
+      "firstname": "true",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "rohit",
+      "mobile": "7878777800",
+      "password": "$2b$10$lcQJfa/xOBf5CUdWre4tsOBgNpN04K7sH9YftPth0jrPIaXSNwNle",
+      "userId": "023228ae-5edd-433a-b678-6666608ece01",
+      "videoDisliked": [
+        "9c30a3dc-def7-401f-ab23-d0f2a64a55b6",
+      ],
+      "videoLiked": [
+        "9c30a3dc-def7-401f-ab23-d0f2a64a55b6",
+      ],
+    },
+    {
+      "_id": {
+        "$oid": "65c38306ae9499ef7db27867",
+      },
+      "age": null,
+      "birthdate": "2000-12-08",
+      "buddies": [],
+      "channelsSubscribed": [],
+      "email": "rohitchavda158@gmailya.com",
+      "firstname": "rohit",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "chavda",
+      "mobile": 1234567890,
+      "password": "$2b$10$eQ.aFyJJhESvGKtBqSeasOg8OaQQCqVsy7cbzxZx.2r4uvQrRMF92",
+      "userId": "3d80189a-110c-4498-845e-46f8aa27c528",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c385d156907e4398cf45ea",
+      },
+      "age": 23,
+      "birthdate": "2000-12-08",
+      "buddies": [],
+      "channelsSubscribed": [],
+      "email": "rohitchavda1580@gmailya.com",
+      "firstname": "rohit",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "chavda",
+      "mobile": 1234567890,
+      "password": "$2b$10$Hhuzt8xv5sXGcbFR9KnRRu2PWmUAcYjFcIc8IEWx1SsAS6lclYevC",
+      "userId": "7cad0ac7-f1b2-4bc7-85c5-8091084d23a9",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+  ],
+}
+`;

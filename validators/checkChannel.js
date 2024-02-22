@@ -1,9 +1,9 @@
-const { getChannelCountFromId } = require("../queries/suggestedCollections");
+const suggestedCollection = require("../queries/suggestedCollections");
 
 const checkChannel = async (ctx, next) => {
   const channelId = ctx.params.id;
   try {
-    const count = await getChannelCountFromId(channelId);
+    const count = await suggestedCollection.getChannelCountFromId(channelId);
     if (!count) {
       ctx.status = 404;
       ctx.body = "No channel Found";

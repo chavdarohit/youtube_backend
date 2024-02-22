@@ -1,9 +1,10 @@
 const { getUserFromDbUsingId } = require("../queries/userCollectionQueries");
 const jwt = require("jsonwebtoken");
+const userCollectionQueries = require("../queries/userCollectionQueries");
 
 const checkBuddy = async ({ buddyId }, ctx) => {
   let err = null;
-  const buddyExists = await getUserFromDbUsingId(buddyId);
+  const buddyExists = await userCollectionQueries.getUserFromDbUsingId(buddyId);
 
   if (!buddyExists) {
     err = {
@@ -13,7 +14,6 @@ const checkBuddy = async ({ buddyId }, ctx) => {
     return err;
   }
   ctx.buddy = buddyExists;
-
   return err;
 };
 
@@ -28,8 +28,8 @@ const checkBuddyAlreadyExists = async ({ token, decision }, ctx) => {
   }
 
   const { userId, buddyId } = jwt.verify(token, process.env.SECRET_KEY);
-  const buddy = await getUserFromDbUsingId(buddyId);
-  const user = await getUserFromDbUsingId(userId);
+  const buddy = await userCollectionQueries.getUserFromDbUsingId(buddyId);
+  const user = await userCollectionQueries.getUserFromDbUsingId(userId);
 
   if (!buddy) {
     err = {
@@ -38,7 +38,6 @@ const checkBuddyAlreadyExists = async ({ token, decision }, ctx) => {
     };
     return err;
   }
-  //   console.log(user);
   if (user.buddies.includes(buddyId)) {
     err = {
       status: 200,
@@ -48,8 +47,6 @@ const checkBuddyAlreadyExists = async ({ token, decision }, ctx) => {
   }
   ctx.state.user = user;
   ctx.buddy = buddy;
-  //   console.log("in context ", ctx.state.user.userId, ctx.buddy.Id);
-
   return err;
 };
 
