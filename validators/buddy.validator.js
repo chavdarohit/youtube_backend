@@ -1,4 +1,3 @@
-const { getUserFromDbUsingId } = require("../queries/userCollectionQueries");
 const jwt = require("jsonwebtoken");
 const userCollectionQueries = require("../queries/userCollectionQueries");
 
@@ -38,11 +37,13 @@ const checkBuddyAlreadyExists = async ({ token, decision }, ctx) => {
     };
     return err;
   }
+
   if (user.buddies.includes(buddyId)) {
     err = {
       status: 200,
       message: "Buddy Already added",
     };
+    console.log("Buddy Already added");
     return err;
   }
   ctx.state.user = user;

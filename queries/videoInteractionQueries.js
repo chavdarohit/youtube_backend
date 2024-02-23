@@ -4,4 +4,8 @@ const addRecord = async (data) => {
   return await videoInteraction.insertOne(data);
 };
 
-module.exports = { addRecord };
+const findVideo = async (data) => {
+  return await videoInteraction.findOne(data);
+};
+
+module.exports = { addRecord, findVideo };

@@ -1,0 +1,130 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[` video Endpoint testings video list : when no search conditions are provided 1`] = `
+[
+  {
+    "_id": {
+      "$oid": "65ccb5e552906fc9c0ba9aa9",
+    },
+    "comments": [],
+    "description": "Create your own music with this step-by-step tutorial.",
+    "tags": [
+      "#musicproduction",
+      "#tutorial",
+      "#music",
+    ],
+    "totalComments": 0,
+    "totalDislikes": 0,
+    "totalLikes": 0,
+    "uploadedBy": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+    "videoId": "6c46611f-b9ce-4577-9880-514a81dbf735",
+    "videoLink": "https://www.youtube.com/watch?v=musicproduction404",
+    "videoTitle": "Music Production Tutorial",
+  },
+  {
+    "_id": {
+      "$oid": "65ccb5e552906fc9c0ba9aaa",
+    },
+    "comments": [],
+    "description": "Start your journey to learn a new language with effective training.",
+    "tags": [
+      "#languagelearning",
+      "#education",
+      "#tutorial",
+    ],
+    "totalComments": 0,
+    "totalDislikes": 0,
+    "totalLikes": 0,
+    "uploadedBy": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+    "videoId": "b6782e9a-369f-4121-9498-72f858d44129",
+    "videoLink": "https://www.youtube.com/watch?v=newlanguagetraining505",
+    "videoTitle": "Learning a New Language",
+  },
+  {
+    "_id": {
+      "$oid": "65ccb5e552906fc9c0ba9aab",
+    },
+    "comments": [],
+    "description": "Discover creative art and craft ideas for your next project.",
+    "tags": [
+      "#art",
+      "#crafts",
+      "#creativity",
+    ],
+    "totalComments": 0,
+    "totalDislikes": 0,
+    "totalLikes": 0,
+    "uploadedBy": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+    "videoId": "421d1049-8eb7-4a76-b7ae-eebd4cebc8c3",
+    "videoLink": "https://www.youtube.com/watch?v=artandcraft606",
+    "videoTitle": "Art and Craft Ideas",
+  },
+  {
+    "_id": {
+      "$oid": "65ccb5e552906fc9c0ba9aac",
+    },
+    "comments": [],
+    "description": "Immerse yourself in a virtual reality gaming adventure.",
+    "tags": [
+      "#gaming",
+      "#virtualreality",
+      "#experience",
+    ],
+    "totalComments": 0,
+    "totalDislikes": 0,
+    "totalLikes": 0,
+    "uploadedBy": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+    "videoId": "cf9154d4-8e15-4cc5-adc8-ae9306188f23",
+    "videoLink": "https://www.youtube.com/watch?v=vrgaming707",
+    "videoTitle": "Virtual Reality Gaming Experience",
+  },
+]
+`;
+
+exports[` video Endpoint testings video list : when tag is provided 1`] = `
+[
+  {
+    "_id": {
+      "$oid": "65ccb5e552906fc9c0ba9aac",
+    },
+    "comments": [],
+    "description": "Immerse yourself in a virtual reality gaming adventure.",
+    "tags": [
+      "#gaming",
+      "#virtualreality",
+      "#experience",
+    ],
+    "totalComments": 0,
+    "totalDislikes": 0,
+    "totalLikes": 0,
+    "uploadedBy": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+    "videoId": "cf9154d4-8e15-4cc5-adc8-ae9306188f23",
+    "videoLink": "https://www.youtube.com/watch?v=vrgaming707",
+    "videoTitle": "Virtual Reality Gaming Experience",
+  },
+]
+`;
+
+exports[` video Endpoint testings video list : when title is provided 1`] = `
+[
+  {
+    "_id": {
+      "$oid": "65ccb5e552906fc9c0ba9aa9",
+    },
+    "comments": [],
+    "description": "Create your own music with this step-by-step tutorial.",
+    "tags": [
+      "#musicproduction",
+      "#tutorial",
+      "#music",
+    ],
+    "totalComments": 0,
+    "totalDislikes": 0,
+    "totalLikes": 0,
+    "uploadedBy": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+    "videoId": "6c46611f-b9ce-4577-9880-514a81dbf735",
+    "videoLink": "https://www.youtube.com/watch?v=musicproduction404",
+    "videoTitle": "Music Production Tutorial",
+  },
+]
+`;

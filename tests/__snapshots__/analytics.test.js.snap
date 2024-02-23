@@ -1,0 +1,281 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Analytics endpoint  subscribe analytics 1`] = `
+{
+  "newSubscribers": {
+    "newSubscribers": [
+      {
+        "age": 19,
+        "channel": {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": "2024-02-23T06:36:38.080Z",
+        },
+        "firstname": "Rao ",
+        "gender": "f",
+        "lastname": "Ecoe",
+      },
+      {
+        "age": 22,
+        "channel": {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": "2024-02-16T11:14:03.038Z",
+        },
+        "firstname": "true",
+        "gender": "m",
+        "lastname": "rohit",
+      },
+      {
+        "age": null,
+        "channel": {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": "2024-02-16T11:12:10.264Z",
+        },
+        "firstname": "rohit",
+        "gender": "m",
+        "lastname": "chavda",
+      },
+      {
+        "age": null,
+        "channel": {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": "2024-02-16T11:11:22.137Z",
+        },
+        "firstname": "rohit",
+        "gender": "m",
+        "lastname": "chavda",
+      },
+      {
+        "age": 23,
+        "channel": {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": "2024-02-16T11:09:17.447Z",
+        },
+        "firstname": "manojdey",
+        "gender": "m",
+        "lastname": "chavda",
+      },
+    ],
+    "subscriberAnalytics": [
+      {
+        "0to20": 1,
+        "20to40": 3,
+        "40to60": 0,
+        "_id": null,
+        "totalSubscribers": 6,
+        "totalfemale": 1,
+        "totalmale": 5,
+      },
+    ],
+  },
+  "subscriberAnalytics": {
+    "newSubscribers": [
+      {
+        "age": 19,
+        "channel": {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": "2024-02-23T06:36:38.080Z",
+        },
+        "firstname": "Rao ",
+        "gender": "f",
+        "lastname": "Ecoe",
+      },
+      {
+        "age": 22,
+        "channel": {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": "2024-02-16T11:14:03.038Z",
+        },
+        "firstname": "true",
+        "gender": "m",
+        "lastname": "rohit",
+      },
+      {
+        "age": null,
+        "channel": {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": "2024-02-16T11:12:10.264Z",
+        },
+        "firstname": "rohit",
+        "gender": "m",
+        "lastname": "chavda",
+      },
+      {
+        "age": null,
+        "channel": {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": "2024-02-16T11:11:22.137Z",
+        },
+        "firstname": "rohit",
+        "gender": "m",
+        "lastname": "chavda",
+      },
+      {
+        "age": 23,
+        "channel": {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": "2024-02-16T11:09:17.447Z",
+        },
+        "firstname": "manojdey",
+        "gender": "m",
+        "lastname": "chavda",
+      },
+    ],
+    "subscriberAnalytics": [
+      {
+        "0to20": 1,
+        "20to40": 3,
+        "40to60": 0,
+        "_id": null,
+        "totalSubscribers": 6,
+        "totalfemale": 1,
+        "totalmale": 5,
+      },
+    ],
+  },
+}
+`;
+
+exports[`Analytics endpoint  video analytics 1`] = `
+{
+  "top5videos": {
+    "top5videos": [
+      {
+        "_id": "65ccb5e552906fc9c0ba9ab2",
+        "comments": [],
+        "description": "Start your own home garden with this beginner's guide.",
+        "tags": [
+          "#gardening",
+          "#homegarden",
+          "#plants",
+        ],
+        "totalComments": 0,
+        "totalDislikes": 2,
+        "totalLikes": 5,
+        "uploadedBy": "406528b5-8896-4547-8673-ad433782d96b",
+        "videoId": "c34fafad-97ce-465b-9596-403dae4bfb5f",
+        "videoLink": "https://www.youtube.com/watch?v=homegardening1313",
+        "videoTitle": "Home Gardening 101",
+      },
+      {
+        "_id": "65ccb5e552906fc9c0ba9ab1",
+        "comments": [
+          "its just wow",
+        ],
+        "description": "Learn how to take care of your beloved pets with these tips.",
+        "tags": [
+          "#petcare",
+          "#animals",
+          "#tips",
+        ],
+        "totalComments": 0,
+        "totalDislikes": 1,
+        "totalLikes": 1,
+        "uploadedBy": "406528b5-8896-4547-8673-ad433782d96b",
+        "videoId": "9c30a3dc-def7-401f-ab23-d0f2a64a55b6",
+        "videoLink": "https://www.youtube.com/watch?v=petcaretips1212",
+        "videoTitle": "Pet Care Tips",
+      },
+      {
+        "_id": "65ccb5e552906fc9c0ba9ab3",
+        "comments": [],
+        "description": "Make learning fun with these exciting science experiments.",
+        "tags": [
+          "#science",
+          "#experiments",
+          "#kids",
+        ],
+        "totalComments": 0,
+        "totalDislikes": 0,
+        "totalLikes": 0,
+        "uploadedBy": "406528b5-8896-4547-8673-ad433782d96b",
+        "videoId": "f3d906a8-7e5a-4e94-9f43-d864e5111d6c",
+        "videoLink": "https://www.youtube.com/watch?v=scienceexperiments1414",
+        "videoTitle": "Science Experiments for Kids",
+      },
+    ],
+    "videoAnalytics": [
+      {
+        "_id": null,
+        "totalComments": 1,
+        "totalDislikes": 3,
+        "totalLikes": 6,
+      },
+    ],
+  },
+  "videoAnalytics": {
+    "top5videos": [
+      {
+        "_id": "65ccb5e552906fc9c0ba9ab2",
+        "comments": [],
+        "description": "Start your own home garden with this beginner's guide.",
+        "tags": [
+          "#gardening",
+          "#homegarden",
+          "#plants",
+        ],
+        "totalComments": 0,
+        "totalDislikes": 2,
+        "totalLikes": 5,
+        "uploadedBy": "406528b5-8896-4547-8673-ad433782d96b",
+        "videoId": "c34fafad-97ce-465b-9596-403dae4bfb5f",
+        "videoLink": "https://www.youtube.com/watch?v=homegardening1313",
+        "videoTitle": "Home Gardening 101",
+      },
+      {
+        "_id": "65ccb5e552906fc9c0ba9ab1",
+        "comments": [
+          "its just wow",
+        ],
+        "description": "Learn how to take care of your beloved pets with these tips.",
+        "tags": [
+          "#petcare",
+          "#animals",
+          "#tips",
+        ],
+        "totalComments": 0,
+        "totalDislikes": 1,
+        "totalLikes": 1,
+        "uploadedBy": "406528b5-8896-4547-8673-ad433782d96b",
+        "videoId": "9c30a3dc-def7-401f-ab23-d0f2a64a55b6",
+        "videoLink": "https://www.youtube.com/watch?v=petcaretips1212",
+        "videoTitle": "Pet Care Tips",
+      },
+      {
+        "_id": "65ccb5e552906fc9c0ba9ab3",
+        "comments": [],
+        "description": "Make learning fun with these exciting science experiments.",
+        "tags": [
+          "#science",
+          "#experiments",
+          "#kids",
+        ],
+        "totalComments": 0,
+        "totalDislikes": 0,
+        "totalLikes": 0,
+        "uploadedBy": "406528b5-8896-4547-8673-ad433782d96b",
+        "videoId": "f3d906a8-7e5a-4e94-9f43-d864e5111d6c",
+        "videoLink": "https://www.youtube.com/watch?v=scienceexperiments1414",
+        "videoTitle": "Science Experiments for Kids",
+      },
+    ],
+    "videoAnalytics": [
+      {
+        "_id": null,
+        "totalComments": 1,
+        "totalDislikes": 3,
+        "totalLikes": 6,
+      },
+    ],
+  },
+}
+`;

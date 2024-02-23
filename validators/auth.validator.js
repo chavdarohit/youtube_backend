@@ -1,4 +1,3 @@
-// const { getUserFromDbUsingEmail } = require("../queries/userCollectionQueries");
 const userCollectionQueries = require("../queries/userCollectionQueries");
 
 let namePattern = /^[a-zA-Z]+$/;

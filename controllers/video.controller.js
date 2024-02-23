@@ -1,6 +1,5 @@
-const { updateUser } = require("../queries/userCollectionQueries");
-const { getAllVideos, updateVideo } = require("../queries/videoCollection");
-const { addRecord } = require("../queries/videoInteractionQueries");
+const videoCollectionQueries = require("../queries/videoCollection");
+const videoInteractionQueries = require("../queries/videoInteractionQueries");
 
 const videoList = async (ctx) => {
   let { channelId, title, tags } = ctx.query;
@@ -16,12 +15,13 @@ const videoList = async (ctx) => {
       console.log(tags);
       condition.tags = new RegExp(tags, "i");
     }
-    const list = await getAllVideos(condition);
+    const list = await videoCollectionQueries.getAllVideos(condition);
     console.log(
       "videos list fetched by ",
       ctx.state.user.firstname,
       ctx.state.user.lastname
     );
+    console.log(list);
     ctx.status = 200;
     ctx.body = list;
   } catch (err) {
@@ -37,14 +37,14 @@ const videoLike = async (ctx) => {
     if (videoId) {
       videoCondition.$inc = { totalLikes: 1 };
     }
-    await addRecord({
+    await videoInteractionQueries.addRecord({
       userId: ctx.state.user.userId,
       videoId,
       on: new Date(),
       status: "liked",
     });
 
-    await updateVideo(videoId, videoCondition);
+    await videoCollectionQueries.updateVideo(videoId, videoCondition);
 
     ctx.status = 200;
     ctx.body = "Video Liked";
@@ -67,7 +67,7 @@ const videoDislike = async (ctx) => {
       videoCondition.$inc = { totalDislikes: 1 };
     }
 
-    await addRecord({
+    await videoInteractionQueries.addRecord({
       userId: ctx.state.user.userId,
       videoId,
       on: new Date(),
@@ -75,7 +75,7 @@ const videoDislike = async (ctx) => {
     });
 
     // await updateUser(ctx.state.user.userId, userCondition);
-    await updateVideo(videoId, videoCondition);
+    await videoCollectionQueries.updateVideo(videoId, videoCondition);
 
     ctx.status = 200;
     ctx.body = "Video Disliked";
@@ -95,19 +95,14 @@ const videoComment = async (ctx) => {
   const { comment } = ctx.request.body;
   const videoId = ctx.params.id;
 
-  try {
-    let condition = {};
-    if (comment) {
-      condition.$addToSet = { comments: comment };
-    }
-    await updateVideo(videoId, condition);
-
-    ctx.status = 200;
-    ctx.body = "comment sucessfull";
-  } catch (err) {
-    ctx.status = 500;
-    ctx.body = "Internal server Error";
+  let condition = {};
+  if (comment) {
+    condition.$addToSet = { comments: comment };
   }
+  await videoCollectionQueries.updateVideo(videoId, condition);
+
+  ctx.status = 200;
+  ctx.body = "comment sucessfull";
 };
 
 module.exports = { videoList, videoLike, videoDislike, videoComment };

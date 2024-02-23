@@ -1,13 +1,8 @@
-const { videoInteraction } = require("../config/dbconfig");
-const { getAllVideos } = require("../queries/videoCollection");
+const videoCollectionQueries = require("../queries/videoCollection");
+const videoInteractionQueries = require("../queries/videoInteractionQueries");
 
 const alreadyvideoPresent = async (_, ctx) => {
   let err = null;
-
-  if (!ctx.params.videoId) {
-    err = { message: "No video Found ", field: "videoId" };
-    return err;
-  }
 
   if (await videoPresent(ctx.params.videoId, ctx)) {
     if (ctx.originalUrl.includes("like"))
@@ -26,7 +21,7 @@ const videoPresent = async (videoId, ctx) => {
 
   if (ctx.originalUrl.includes("like")) {
     console.log("in like");
-    video = await videoInteraction.findOne({
+    video = await videoInteractionQueries.findVideo({
       userId,
       videoId,
       status: "liked",
@@ -35,12 +30,13 @@ const videoPresent = async (videoId, ctx) => {
 
   if (ctx.originalUrl.includes("dislike")) {
     console.log("in dislike");
-    video = await videoInteraction.findOne({
+    video = await videoInteractionQueries.findVideo({
       userId,
       videoId,
       status: "disliked",
     });
   }
+
   if (video) return true;
   return false;
 };
@@ -50,8 +46,10 @@ const videoExists = async (_, ctx) => {
   let condition = {
     videoId: ctx.params.videoId,
   };
-  const video = await getAllVideos(condition);
+  console.log("in videoExists ", condition);
+  const video = await videoCollectionQueries.getAllVideos(condition);
 
+  console.log("in video ", video);
   if (!video) {
     err = { message: "No video Found", field: "videoId" };
     return err;

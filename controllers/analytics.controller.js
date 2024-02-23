@@ -1,6 +1,5 @@
-const { getAllVideosFromAggreation } = require("../queries/videoCollection");
-const { getDataFromAggregation } = require("../queries/userCollectionQueries");
-
+const userCollectionQueries = require("../queries/userCollectionQueries");
+const videoCollectionQueries = require("../queries/videoCollection");
 const videoAnalytics = async (ctx) => {
   const channelId = ctx.params.id;
 
@@ -39,8 +38,11 @@ const videoAnalytics = async (ctx) => {
     },
   ];
 
-  const videosAnlytics = await getAllVideosFromAggreation(videoPipeline);
-  const videos = await getAllVideosFromAggreation(top5videoPipeline);
+  const videosAnlytics =
+    await videoCollectionQueries.getAllVideosFromAggreation(videoPipeline);
+  const videos = await videoCollectionQueries.getAllVideosFromAggreation(
+    top5videoPipeline
+  );
 
   ctx.status = 200;
   ctx.body = {
@@ -191,10 +193,13 @@ const subscriberAnalytics = async (ctx) => {
     },
   ];
 
-  const subscriberAnalytics = await getDataFromAggregation(
-    subscriberAnalyticsPipeline
+  const subscriberAnalytics =
+    await userCollectionQueries.getDataFromAggregation(
+      subscriberAnalyticsPipeline
+    );
+  const newSubscribers = await userCollectionQueries.getDataFromAggregation(
+    newSubscribersPipeline
   );
-  const newSubscribers = await getDataFromAggregation(newSubscribersPipeline);
 
   ctx.status = 200;
   ctx.body = {

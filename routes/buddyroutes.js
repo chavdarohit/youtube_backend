@@ -19,9 +19,7 @@ router.get("/search", verifyToken, searchBuddy);
 router.post("/add", validate([checkBuddyAlreadyExists]), addBuddy);
 router.get("/showbuddy", verifyToken, showBuddy);
 
-//depricated
-// router.get("/buddychannels/:id", verifyToken, buddyChannels);
 router.post("/allchannels", verifyToken, allChannels);
-router.post("/mutualbuddy/:id",verifyToken,mutualBuddy);
+router.post("/mutualbuddy/:id", verifyToken, mutualBuddy);
 
 module.exports = router.routes();

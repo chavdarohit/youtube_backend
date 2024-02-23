@@ -1,5 +1,428 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Buddy testings All channels shown :  When buddy Ids provided  1`] = `
+[
+  {
+    "_id": "65b9eb0931a51cb0be4593ae",
+    "avatarImage": "https://img.freepik.com/premium-vector/businessman-character-avatar-isolated_24877-57833.jpg?w=2000",
+    "channelId": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+    "channelName": "DigitalInsights",
+    "description": "Dive into the digital world and gain valuable insights.",
+    "isPremium": false,
+    "subscribersCount": 42000,
+  },
+  {
+    "_id": "65b9eb0931a51cb0be4593ad",
+    "avatarImage": "https://img.freepik.com/premium-vector/gamer-youtuber-gaming-avatar-with-headphones-esport-logo_8169-260.jpg?w=2000",
+    "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+    "channelName": "TechExplorer",
+    "description": "Unraveling the mysteries of cutting-edge technology.",
+    "isPremium": true,
+    "subscribersCount": 55000,
+  },
+  {
+    "_id": "65b9eb0931a51cb0be4593b0",
+    "avatarImage": "https://img.freepik.com/premium-vector/technology-logo-collection_23-2148153848.jpg?w=2000",
+    "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+    "channelName": "InfiniteTechHub",
+    "description": "Exploring the limitless possibilities of technology.",
+    "isPremium": true,
+    "subscribersCount": 89000,
+  },
+  {
+    "_id": "65b9eb0931a51cb0be4593c0",
+    "avatarImage": "https://img.freepik.com/premium-vector/creative-woman-character-avatar_24877-57857.jpg?w=2000",
+    "channelId": "c35e1adb-aa6f-43e9-90f7-4ca1757891e0",
+    "channelName": "ArtisticAdventures",
+    "description": "Embark on artistic journeys and creative explorations.",
+    "isPremium": true,
+    "subscribersCount": 58000,
+  },
+  {
+    "_id": "65b9eb0931a51cb0be4593af",
+    "avatarImage": "https://img.freepik.com/premium-vector/scientist-character-avatar_24877-57784.jpg?w=2000",
+    "channelId": "1ae3af65-5df6-4654-89e1-4299f7583b71",
+    "channelName": "ScienceUnleashed",
+    "description": "Unlocking the wonders of science for curious minds.",
+    "isPremium": true,
+    "subscribersCount": 72000,
+  },
+]
+`;
+
+exports[`Buddy testings All channels shown :  When no buddy Ids provided  1`] = `
+[
+  {
+    "_id": "65b9eb0931a51cb0be4593ae",
+    "avatarImage": "https://img.freepik.com/premium-vector/businessman-character-avatar-isolated_24877-57833.jpg?w=2000",
+    "channelId": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+    "channelName": "DigitalInsights",
+    "description": "Dive into the digital world and gain valuable insights.",
+    "isPremium": false,
+    "subscribersCount": 42000,
+  },
+  {
+    "_id": "65b9eb0931a51cb0be4593ad",
+    "avatarImage": "https://img.freepik.com/premium-vector/gamer-youtuber-gaming-avatar-with-headphones-esport-logo_8169-260.jpg?w=2000",
+    "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+    "channelName": "TechExplorer",
+    "description": "Unraveling the mysteries of cutting-edge technology.",
+    "isPremium": true,
+    "subscribersCount": 55000,
+  },
+  {
+    "_id": "65b9eb0931a51cb0be4593b0",
+    "avatarImage": "https://img.freepik.com/premium-vector/technology-logo-collection_23-2148153848.jpg?w=2000",
+    "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+    "channelName": "InfiniteTechHub",
+    "description": "Exploring the limitless possibilities of technology.",
+    "isPremium": true,
+    "subscribersCount": 89000,
+  },
+  {
+    "_id": "65b9eb0931a51cb0be4593c0",
+    "avatarImage": "https://img.freepik.com/premium-vector/creative-woman-character-avatar_24877-57857.jpg?w=2000",
+    "channelId": "c35e1adb-aa6f-43e9-90f7-4ca1757891e0",
+    "channelName": "ArtisticAdventures",
+    "description": "Embark on artistic journeys and creative explorations.",
+    "isPremium": true,
+    "subscribersCount": 58000,
+  },
+  {
+    "_id": "65b9eb0931a51cb0be4593af",
+    "avatarImage": "https://img.freepik.com/premium-vector/scientist-character-avatar_24877-57784.jpg?w=2000",
+    "channelId": "1ae3af65-5df6-4654-89e1-4299f7583b71",
+    "channelName": "ScienceUnleashed",
+    "description": "Unlocking the wonders of science for curious minds.",
+    "isPremium": true,
+    "subscribersCount": 72000,
+  },
+]
+`;
+
+exports[`Buddy testings Searching buddy succesfull : when no searchTerm is there 1`] = `
+{
+  "buddies": [
+    {
+      "_id": {
+        "$oid": "65c3489ffede69842a7137d1",
+      },
+      "age": 23,
+      "birthdate": "2000-12-8",
+      "buddies": [
+        "efe79206-ff32-4e61-9241-a55d79d94c15",
+        "0984eeaa-7c28-423c-8a35-231a3ff3b0f5",
+      ],
+      "channelsSubscribed": [
+        {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T11:09:17.447Z",
+          },
+        },
+      ],
+      "email": "barotpratham30@gmail.com",
+      "firstname": "manojdey",
+      "gender": "m",
+      "image": "https://res.cloudinary.com/dlw3jhfua/image/upload/v1707296925/ifppmu0feyfi9d2i7wc9.jpg",
+      "isPremium": true,
+      "lastname": "chavda",
+      "mobile": "7878776207",
+      "password": "$2b$10$cJMS4jMVVgu6Iyrf/ddjtOKMaGFfAAi3JY6f5um/U0dCxjZYBEU6O",
+      "userId": "8db871d4-9413-4437-a49b-5847c46275df",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c34952fede69842a7137d2",
+      },
+      "age": 23,
+      "birthdate": "2000-08-08",
+      "buddies": [
+        "efe79206-ff32-4e61-9241-a55d79d94c15",
+        "809fd2aa-bc99-4e66-a14f-a4daa4d69dfc",
+        "0984eeaa-7c28-423c-8a35-231a3ff3b0f5",
+      ],
+      "channelsSubscribed": [
+        {
+          "channelId": "c35e1adb-aa6f-43e9-90f7-4ca1757891e0",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T10:49:53.170Z",
+          },
+        },
+        {
+          "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T10:50:47.631Z",
+          },
+        },
+        {
+          "channelId": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T10:51:07.462Z",
+          },
+        },
+        {
+          "channelId": "1ae3af65-5df6-4654-89e1-4299f7583b71",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T10:51:17.686Z",
+          },
+        },
+        {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T10:51:35.267Z",
+          },
+        },
+      ],
+      "email": "barotpratham266@gmail.com",
+      "firstname": "Parth",
+      "gender": "m",
+      "image": "https://res.cloudinary.com/dlw3jhfua/image/upload/v1707297103/cqn28val4owugtnxqser.png",
+      "isPremium": true,
+      "lastname": "Barot",
+      "mobile": "9875323333",
+      "password": "$2b$10$pmjHwdkIKYfyuED.jUVE0eP3V/bvSUbPJFMMrqWKRIVZnvOYw.6Hy",
+      "userId": "0984eeaa-7c28-423c-8a35-231a3ff3b0f5",
+      "videoDisliked": [
+        "a9725606-f001-4f37-82dc-cfaeaa10aaff",
+      ],
+      "videoLiked": [
+        "a9725606-f001-4f37-82dc-cfaeaa10aaff",
+        "c72f32ff-f50a-433c-9238-833bf4bec159",
+      ],
+    },
+    {
+      "_id": {
+        "$oid": "65c349d949e8a87abeb8e3f3",
+      },
+      "age": 45,
+      "birthdate": "1978-09-09",
+      "buddies": [
+        "0984eeaa-7c28-423c-8a35-231a3ff3b0f5",
+      ],
+      "channelsSubscribed": [
+        {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T11:10:42.444Z",
+          },
+        },
+      ],
+      "email": "barotpratham862003@gmail.com",
+      "firstname": "PrathamSP",
+      "gender": "m",
+      "image": "https://res.cloudinary.com/dlw3jhfua/image/upload/v1707297235/u3jh1qzwulk9rrxkfk9c.png",
+      "isPremium": false,
+      "lastname": "Idar",
+      "mobile": "7894561237",
+      "password": "$2b$10$U4QjjZmph7yQ7L3lBgNRFeKDBslKdA28piH5rI5KeE3ngIBC4jmAi",
+      "userId": "efe79206-ff32-4e61-9241-a55d79d94c15",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c34d84c7c22dbdcbb7adfe",
+      },
+      "age": null,
+      "birthdate": "2000-12-08",
+      "buddies": [],
+      "channelsSubscribed": [
+        {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T11:11:22.137Z",
+          },
+        },
+      ],
+      "email": "rohitchavda@gmailya.com",
+      "firstname": "rohit",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "chavda",
+      "mobile": 123456890,
+      "password": "$2b$10$X.c6tRs3TK1furKPUNeGvOOeo5hjr.vx4kBBEWh6QvSb85VM6BDWa",
+      "userId": "2f74a2f7-93bd-4318-b1b4-dcea2cb0efb1",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c3598ffe9afddfdaf953c6",
+      },
+      "age": null,
+      "birthdate": "2000-12-08",
+      "buddies": [],
+      "channelsSubscribed": [
+        {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T11:12:10.264Z",
+          },
+        },
+      ],
+      "email": "rohitchavda24@gmailya.com",
+      "firstname": "rohit",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "chavda",
+      "mobile": 1234567890,
+      "password": "$2b$10$Dt/IUbarSGbKo9VoDlzOz.DuvlQN8xhCBSABNcfXBeSIFwUNJt.nu",
+      "userId": "fc96e7d5-4ef7-469b-838f-24f2909623d8",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c37f02ff05b2287e86dde9",
+      },
+      "age": null,
+      "birthdate": "2000-12-08",
+      "buddies": [],
+      "channelsSubscribed": [],
+      "email": "rohitchavda24@gmailya.com",
+      "firstname": "rohit",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "chavda",
+      "mobile": 1234567890,
+      "password": "$2b$10$TOVFWdYrj65k3DTF/0f2weyRhGSDtohLPcBFJ92K4.5qanRJ2.0Ya",
+      "userId": "36f868f4-f1cb-49bf-8bf2-76eebf9acfdc",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c38104cdf4fd7846904320",
+      },
+      "age": 22,
+      "birthdate": "2001-12-20",
+      "buddies": [],
+      "channelsSubscribed": [
+        {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T11:14:03.038Z",
+          },
+        },
+      ],
+      "email": "rohitchavda18@gmailya.com",
+      "firstname": "true",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "rohit",
+      "mobile": "7878777800",
+      "password": "$2b$10$lcQJfa/xOBf5CUdWre4tsOBgNpN04K7sH9YftPth0jrPIaXSNwNle",
+      "userId": "023228ae-5edd-433a-b678-6666608ece01",
+      "videoDisliked": [
+        "9c30a3dc-def7-401f-ab23-d0f2a64a55b6",
+      ],
+      "videoLiked": [
+        "9c30a3dc-def7-401f-ab23-d0f2a64a55b6",
+      ],
+    },
+    {
+      "_id": {
+        "$oid": "65c38306ae9499ef7db27867",
+      },
+      "age": null,
+      "birthdate": "2000-12-08",
+      "buddies": [],
+      "channelsSubscribed": [],
+      "email": "rohitchavda158@gmailya.com",
+      "firstname": "rohit",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "chavda",
+      "mobile": 1234567890,
+      "password": "$2b$10$eQ.aFyJJhESvGKtBqSeasOg8OaQQCqVsy7cbzxZx.2r4uvQrRMF92",
+      "userId": "3d80189a-110c-4498-845e-46f8aa27c528",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c3843f20d749df48b137fd",
+      },
+      "age": null,
+      "birthdate": "1999-09-08",
+      "buddies": [],
+      "channelsSubscribed": [],
+      "email": "barotpratham26689@gmail.com",
+      "firstname": "Afri",
+      "gender": "m",
+      "image": "https://res.cloudinary.com/dlw3jhfua/image/upload/v1707312157/vqfsjox7ootkejdpvzmk.jpg",
+      "isPremium": false,
+      "lastname": "Javed",
+      "mobile": "7418529631",
+      "password": "$2b$10$Wff4LtnrV75W3YsByXNXKu.IooIyrD6XwdhtyXX9uCejTDN4uJXwu",
+      "userId": "2cae9a53-ae15-4130-8b0a-60775ce264b3",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c385d156907e4398cf45ea",
+      },
+      "age": 23,
+      "birthdate": "2000-12-08",
+      "buddies": [],
+      "channelsSubscribed": [],
+      "email": "rohitchavda1580@gmailya.com",
+      "firstname": "rohit",
+      "gender": "m",
+      "image": null,
+      "isPremium": false,
+      "lastname": "chavda",
+      "mobile": 1234567890,
+      "password": "$2b$10$Hhuzt8xv5sXGcbFR9KnRRu2PWmUAcYjFcIc8IEWx1SsAS6lclYevC",
+      "userId": "7cad0ac7-f1b2-4bc7-85c5-8091084d23a9",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+    {
+      "_id": {
+        "$oid": "65c467989ad89d9f585561ef",
+      },
+      "age": 19,
+      "birthdate": "2004-09-08",
+      "buddies": [
+        "0984eeaa-7c28-423c-8a35-231a3ff3b0f5",
+      ],
+      "channelsSubscribed": [],
+      "email": "raoecommerce266@gmail.com",
+      "firstname": "Rao ",
+      "gender": "f",
+      "image": "https://res.cloudinary.com/dlw3jhfua/image/upload/v1707370389/p0b48nbawbja4dtnnfp2.png",
+      "isPremium": false,
+      "lastname": "Ecoe",
+      "mobile": "7418529633",
+      "password": "$2b$10$dGnCZnfUJ5K/Y1Lyo7BIvumOy0hAor0LUNmdm8iG0FAaJnnAyCiQi",
+      "userId": "809fd2aa-bc99-4e66-a14f-a4daa4d69dfc",
+      "videoDisliked": [],
+      "videoLiked": [],
+    },
+  ],
+}
+`;
+
 exports[`Buddy testings Searching buddy succesfull : when searchTerm is there 1`] = `
 {
   "buddies": [
@@ -152,5 +575,217 @@ exports[`Buddy testings Searching buddy succesfull : when searchTerm is there 1`
       "videoLiked": [],
     },
   ],
+}
+`;
+
+exports[`Buddy testings show buddy  :  Valid buddy data  1`] = `
+{
+  "buddies": [
+    {
+      "_id": {
+        "$oid": "65c34952fede69842a7137d2",
+      },
+      "age": 23,
+      "birthdate": "2000-08-08",
+      "buddies": [
+        "efe79206-ff32-4e61-9241-a55d79d94c15",
+        "809fd2aa-bc99-4e66-a14f-a4daa4d69dfc",
+        "0984eeaa-7c28-423c-8a35-231a3ff3b0f5",
+      ],
+      "channelsSubscribed": [
+        {
+          "channelId": "c35e1adb-aa6f-43e9-90f7-4ca1757891e0",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T10:49:53.170Z",
+          },
+        },
+        {
+          "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T10:50:47.631Z",
+          },
+        },
+        {
+          "channelId": "ef221f28-8faa-4b19-b02e-7f404544ac59",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T10:51:07.462Z",
+          },
+        },
+        {
+          "channelId": "1ae3af65-5df6-4654-89e1-4299f7583b71",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T10:51:17.686Z",
+          },
+        },
+        {
+          "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+          "isbell": false,
+          "subscribedOn": {
+            "$date": "2024-02-16T10:51:35.267Z",
+          },
+        },
+      ],
+      "email": "barotpratham266@gmail.com",
+      "firstname": "Parth",
+      "gender": "m",
+      "image": "https://res.cloudinary.com/dlw3jhfua/image/upload/v1707297103/cqn28val4owugtnxqser.png",
+      "isPremium": true,
+      "lastname": "Barot",
+      "mobile": "9875323333",
+      "password": "$2b$10$pmjHwdkIKYfyuED.jUVE0eP3V/bvSUbPJFMMrqWKRIVZnvOYw.6Hy",
+      "userId": "0984eeaa-7c28-423c-8a35-231a3ff3b0f5",
+      "videoDisliked": [
+        "a9725606-f001-4f37-82dc-cfaeaa10aaff",
+      ],
+      "videoLiked": [
+        "a9725606-f001-4f37-82dc-cfaeaa10aaff",
+        "c72f32ff-f50a-433c-9238-833bf4bec159",
+      ],
+    },
+  ],
+  "status": 200,
+}
+`;
+
+exports[`Buddy testings show buddy  :  when there is no buddy  1`] = `
+{
+  "buddies": [],
+  "status": 204,
+}
+`;
+
+exports[`Buddy testings show mutual buddy : with bell 1`] = `
+{
+  "buddy": {
+    "buddy": [
+      {
+        "_id": "65c349d949e8a87abeb8e3f3",
+        "age": 45,
+        "birthdate": "1978-09-09",
+        "buddies": [
+          "0984eeaa-7c28-423c-8a35-231a3ff3b0f5",
+        ],
+        "channelsSubscribed": [
+          {
+            "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+            "isbell": false,
+            "subscribedOn": "2024-02-16T11:10:42.444Z",
+          },
+        ],
+        "email": "barotpratham862003@gmail.com",
+        "firstname": "PrathamSP",
+        "gender": "m",
+        "image": "https://res.cloudinary.com/dlw3jhfua/image/upload/v1707297235/u3jh1qzwulk9rrxkfk9c.png",
+        "isPremium": false,
+        "lastname": "Idar",
+        "mobile": "7894561237",
+        "password": "$2b$10$U4QjjZmph7yQ7L3lBgNRFeKDBslKdA28piH5rI5KeE3ngIBC4jmAi",
+        "userId": "efe79206-ff32-4e61-9241-a55d79d94c15",
+        "videoDisliked": [],
+        "videoLiked": [],
+      },
+      {
+        "_id": "65c467989ad89d9f585561ef",
+        "age": 19,
+        "birthdate": "2004-09-08",
+        "buddies": [
+          "0984eeaa-7c28-423c-8a35-231a3ff3b0f5",
+        ],
+        "channelsSubscribed": [
+          {
+            "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+            "isbell": false,
+            "subscribedOn": "2024-02-23T06:36:38.080Z",
+          },
+          {
+            "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+            "isbell": true,
+            "subscribedOn": "2024-02-23T06:36:41.176Z",
+          },
+        ],
+        "email": "raoecommerce266@gmail.com",
+        "firstname": "Rao ",
+        "gender": "f",
+        "image": "https://res.cloudinary.com/dlw3jhfua/image/upload/v1707370389/p0b48nbawbja4dtnnfp2.png",
+        "isPremium": false,
+        "lastname": "Ecoe",
+        "mobile": "7418529633",
+        "password": "$2b$10$dGnCZnfUJ5K/Y1Lyo7BIvumOy0hAor0LUNmdm8iG0FAaJnnAyCiQi",
+        "userId": "809fd2aa-bc99-4e66-a14f-a4daa4d69dfc",
+        "videoDisliked": [],
+        "videoLiked": [],
+      },
+    ],
+  },
+}
+`;
+
+exports[`Buddy testings show mutual buddy : with both bell true and false 1`] = `
+{
+  "buddy": {
+    "buddy": [
+      {
+        "_id": "65c349d949e8a87abeb8e3f3",
+        "age": 45,
+        "birthdate": "1978-09-09",
+        "buddies": [
+          "0984eeaa-7c28-423c-8a35-231a3ff3b0f5",
+        ],
+        "channelsSubscribed": [
+          {
+            "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+            "isbell": false,
+            "subscribedOn": "2024-02-16T11:10:42.444Z",
+          },
+        ],
+        "email": "barotpratham862003@gmail.com",
+        "firstname": "PrathamSP",
+        "gender": "m",
+        "image": "https://res.cloudinary.com/dlw3jhfua/image/upload/v1707297235/u3jh1qzwulk9rrxkfk9c.png",
+        "isPremium": false,
+        "lastname": "Idar",
+        "mobile": "7894561237",
+        "password": "$2b$10$U4QjjZmph7yQ7L3lBgNRFeKDBslKdA28piH5rI5KeE3ngIBC4jmAi",
+        "userId": "efe79206-ff32-4e61-9241-a55d79d94c15",
+        "videoDisliked": [],
+        "videoLiked": [],
+      },
+      {
+        "_id": "65c467989ad89d9f585561ef",
+        "age": 19,
+        "birthdate": "2004-09-08",
+        "buddies": [
+          "0984eeaa-7c28-423c-8a35-231a3ff3b0f5",
+        ],
+        "channelsSubscribed": [
+          {
+            "channelId": "406528b5-8896-4547-8673-ad433782d96b",
+            "isbell": false,
+            "subscribedOn": "2024-02-23T06:36:38.080Z",
+          },
+          {
+            "channelId": "0f16046a-9ab4-41f7-a9da-58f662eda481",
+            "isbell": true,
+            "subscribedOn": "2024-02-23T06:36:41.176Z",
+          },
+        ],
+        "email": "raoecommerce266@gmail.com",
+        "firstname": "Rao ",
+        "gender": "f",
+        "image": "https://res.cloudinary.com/dlw3jhfua/image/upload/v1707370389/p0b48nbawbja4dtnnfp2.png",
+        "isPremium": false,
+        "lastname": "Ecoe",
+        "mobile": "7418529633",
+        "password": "$2b$10$dGnCZnfUJ5K/Y1Lyo7BIvumOy0hAor0LUNmdm8iG0FAaJnnAyCiQi",
+        "userId": "809fd2aa-bc99-4e66-a14f-a4daa4d69dfc",
+        "videoDisliked": [],
+        "videoLiked": [],
+      },
+    ],
+  },
 }
 `;

@@ -1,9 +1,3 @@
-const {
-  updateUserToPremium,
-  updateUser,
-  getUserFromDbUsingId,
-  getDataFromAggregation,
-} = require("../queries/userCollectionQueries");
 const suggestedCollectionsQueries = require("../queries/suggestedCollections");
 const userCollectionQueries = require("../queries/userCollectionQueries");
 

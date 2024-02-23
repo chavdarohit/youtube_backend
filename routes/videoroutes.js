@@ -28,5 +28,10 @@ router.get(
   videoDislike
 );
 
-router.post("/comment/:id", verifyToken, validate([videoExists]), videoComment);
+router.post(
+  "/comment/:videoId",
+  verifyToken,
+  validate([videoExists]),
+  videoComment
+);
 module.exports = router.routes();

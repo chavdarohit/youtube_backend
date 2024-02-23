@@ -328,8 +328,6 @@ describe("Data testings", () => {
       .set("Cookie", `token=${jwt}`)
       .query({
         _searchTerm: "tech",
-        // _limit: 5,
-        // _page: 1,
       })
       .send();
 

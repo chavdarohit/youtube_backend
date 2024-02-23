@@ -1,9 +1,7 @@
 const userCollectionQueries = require("../queries/userCollectionQueries");
 const addBuddyMail = require("../utils/addBuddyMail");
 const jwt = require("jsonwebtoken");
-const { getDataFromAggregation } = require("../queries/userCollectionQueries");
 
-const { userCollection } = require("../config/dbconfig");
 require("dotenv").config();
 
 const requestBuddy = async (ctx) => {
@@ -90,6 +88,7 @@ const searchBuddy = async (ctx) => {
 const addBuddy = async (ctx) => {
   const userId = ctx.state.user.userId;
   const buddyId = ctx.buddy.userId;
+
   console.log("user id ", userId, " buddy id ", buddyId);
 
   const operations = [
@@ -109,47 +108,42 @@ const addBuddy = async (ctx) => {
 
   await userCollectionQueries.bulkWriteInDb(operations);
 
-  console.log("user id buddy id ", userId, buddyId);
-
   console.log("Buddies updated Succesfully");
-  ctx.body = {
-    status: 200,
-    message: "Buddy added succesfully",
-    user: ctx.buddy,
-  };
+  (ctx.status = 200),
+    (ctx.body = {
+      message: "Buddy added succesfully",
+      user: ctx.buddy,
+    });
 };
 
 const showBuddy = async (ctx) => {
-  try {
-    const user = ctx.state.user;
+  const user = ctx.state.user;
 
-    console.log("Show buddy ", user.buddies);
+  console.log("Show buddy ", user.buddies);
 
-    let condition = {
-      userId: { $in: user.buddies },
-    };
-    let projection = {
-      projection: {
-        firstname: 1,
-        lastname: 1,
-        email: 1,
-        userId: 1,
-        image: 1,
-        _id: 0,
-      },
-    };
-    const buddies = await getUsersFromDb(condition, projection);
+  let condition = {
+    userId: { $in: user.buddies },
+  };
+  let projection = {
+    projection: {
+      firstname: 1,
+      lastname: 1,
+      email: 1,
+      userId: 1,
+      image: 1,
+      _id: 0,
+    },
+  };
+  const buddies = await userCollectionQueries.getUsersFromDb(
+    condition,
+    projection
+  );
 
-    console.log("Buddies fetched succesfully");
-    if (buddies.length === 0) {
-      ctx.body = { status: 204, buddies };
-    } else {
-      ctx.body = { status: 200, buddies };
-    }
-  } catch (err) {
-    ctx.status = 201;
-    ctx.body = "error showing buddys";
-    console.log("error showing buddys ", err);
+  console.log("Buddies fetched succesfully");
+  if (buddies.length === 0) {
+    ctx.body = { status: 204, buddies };
+  } else {
+    ctx.body = { status: 200, buddies };
   }
 };
 
@@ -160,101 +154,95 @@ const allChannels = async (ctx) => {
   const page = parseInt(_page) || 1;
   const skip = (page - 1) * limit;
 
-  try {
-    // getting buddy ids from frontend from checkbox
-    const buddyIdFromCheckbox = ctx.request.body?.buddyId ?? [];
-    let buddyIds = [];
+  // getting buddy ids from frontend from checkbox
+  const buddyIdFromCheckbox = ctx.request.body?.buddyId ?? [];
+  let buddyIds = [];
 
-    const user = ctx.state.user;
-    if (Array.isArray(buddyIdFromCheckbox) && buddyIdFromCheckbox.length > 0) {
-      buddyIds = buddyIdFromCheckbox;
-    } else {
-      //array of all buddy ids if no one is selected from checkbox
-      buddyIds = [...user.buddies, user.userId];
-    }
+  const user = ctx.state.user;
+  if (Array.isArray(buddyIdFromCheckbox) && buddyIdFromCheckbox.length > 0) {
+    buddyIds = buddyIdFromCheckbox;
+  } else {
+    //array of all buddy ids if no one is selected from checkbox
+    buddyIds = [...user.buddies, user.userId];
+  }
 
-    const result = await userCollection
-      .aggregate([
-        {
-          $match: {
-            userId: {
-              $in: buddyIds,
-            },
-          },
+  const pipeline = [
+    {
+      $match: {
+        userId: {
+          $in: buddyIds,
         },
-        {
-          $lookup: {
-            from: "suggested",
-            localField: "channelsSubscribed.channelId",
-            foreignField: "channelId",
-            as: "suggestedChannels",
-          },
-        },
-        {
-          $unwind: "$suggestedChannels",
-        },
-        {
-          $group: {
-            _id: null,
-            channels: { $addToSet: "$suggestedChannels" },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            channels: {
-              $filter: {
-                input: "$channels",
-                as: "channel",
-                cond: {
+      },
+    },
+    {
+      $lookup: {
+        from: "suggested",
+        localField: "channelsSubscribed.channelId",
+        foreignField: "channelId",
+        as: "suggestedChannels",
+      },
+    },
+    {
+      $unwind: "$suggestedChannels",
+    },
+    {
+      $group: {
+        _id: null,
+        channels: { $addToSet: "$suggestedChannels" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        channels: {
+          $filter: {
+            input: "$channels",
+            as: "channel",
+            cond: {
+              $cond: {
+                if: { $eq: [user.isPremium, true] },
+                then: "$$channel",
+                else: {
                   $cond: {
-                    if: { $eq: [user.isPremium, true] },
-                    then: "$$channel",
-                    else: {
+                    if: { $eq: [user.isPremium, false] },
+                    then: {
                       $cond: {
-                        if: { $eq: [user.isPremium, false] },
-                        then: {
-                          $cond: {
-                            if: { $eq: ["$$channel.isPremium", false] },
-                            then: "$$channel",
-                            else: null,
-                          },
-                        },
+                        if: { $eq: ["$$channel.isPremium", false] },
+                        then: "$$channel",
                         else: null,
                       },
                     },
+                    else: null,
                   },
                 },
               },
             },
-            totalCount: { $size: "$channels" },
           },
         },
-        {
-          $project: {
-            _id: 0,
-            channels: { $slice: ["$channels", skip, limit] },
-            totalCount: 1,
-          },
-        },
-      ])
-      .toArray();
+        totalCount: { $size: "$channels" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        channels: { $slice: ["$channels", skip, limit] },
+        totalCount: 1,
+      },
+    },
+  ];
+  const result = await userCollectionQueries.getDataFromAggregation(pipeline);
 
-    console.log("resut ", result);
-    ctx.body = {
-      status: 200,
-      channels: result[0].channels,
-      totalCount: result[0].totalCount,
-      totalPages: Math.ceil(result[0].totalCount / limit),
-    };
-  } catch (err) {
-    ctx.status = 500;
-    ctx.body = "something went wrong while fetching all channels";
-    console.log("error in fetching all ", err);
-  }
+  console.log("resut ", result);
+  ctx.body = {
+    status: 200,
+    channels: result[0].channels,
+    totalCount: result[0].totalCount,
+    totalPages: Math.ceil(result[0].totalCount / limit),
+  };
 };
 
 const mutualBuddy = async (ctx) => {
+  //find which buddy had subscribed the same channel
   const channelId = ctx.params.id;
   const user = ctx.state.user;
   const { isbell } = ctx.query;
@@ -283,10 +271,12 @@ const mutualBuddy = async (ctx) => {
       },
       matchStage,
     ];
-    const buddy = await getDataFromAggregation(pipeline);
-    console.log(buddy);
+    const buddy = await userCollectionQueries.getDataFromAggregation(
+      pipeline,
+      "mutualbuddy"
+    );
+    ctx.status = 200;
     ctx.body = {
-      status: 200,
       buddy: buddy,
     };
   } catch (err) {
